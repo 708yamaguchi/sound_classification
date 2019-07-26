@@ -1,0 +1,14 @@
+<launch>
+  <arg name="microphone_name" default="default"/> <!-- default microphone on thinkpad T460s -->
+  <param name="/microphone/name" value="$(arg microphone_name)"/>
+  <param name="/microphone/chunk" value="512"/>
+  <param name="/microphone/length" value="512"/>
+  <param name="/microphone/rate" value="44100"/>
+
+  <!-- publish sound topics from microphone -->
+  <node pkg="sound_classification" type="listen_microphone.py" name="listen_microphone" output="screen" respawn="true" />
+
+  <!-- save noise sound for 3 seconds -->
+  <node pkg="sound_classification" type="save_noise_sound.py" name="save_noise_sound" output="screen" respawn="false" required="true" />
+
+</launch>

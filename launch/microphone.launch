@@ -1,0 +1,37 @@
+<launch>
+  <arg name="microphone_name" default="default"/> <!-- default microphone on thinkpad T460s -->
+  <arg name="chunk" default="512"/>
+  <arg name="length" default="512"/>
+  <arg name="rate" default="44100"/>
+  <arg name="cutoff_rate" default="8000"/>
+  <arg name="hit_volume_threshold" default="0.2"/>
+  <arg name="save_image" default="false"/>
+  <arg name="target_class" default="table"/>
+
+  <param name="/microphone/name" value="$(arg microphone_name)"/>
+  <param name="/microphone/chunk" value="$(arg chunk)"/>
+  <param name="/microphone/length" value="$(arg length)"/>
+  <param name="/microphone/rate" value="$(arg rate)"/>
+
+  <!-- publish sound topics from microphone -->
+  <node pkg="sound_classification" type="listen_microphone.py" name="listen_microphone" output="screen" respawn="true" >
+    <param name="cutoff_rate" value="$(arg cutoff_rate)"/>
+    <param name="hit_volume_threshold" value="$(arg hit_volume_threshold)"/>
+    <param name="time_to_listen" value="0.3"/>
+  </node>
+
+  <!-- save spectrogram or sound classification -->
+  <group if="$(arg save_image)">
+    <node pkg="sound_classification" name="save_spectrogram" type="save_spectrogram.py" output="screen">
+      <param name="target_class" value="$(arg target_class)"/>
+    </node>
+  </group>
+  <group unless="$(arg save_image)">
+      <node pkg="sound_classification" type="classify_spectrogram_ros.py" name="classify_spectrogram_ros" output="screen">
+        <param name="model" value="$(find sound_classification)/scripts/result/model_best.npz"/>
+      </node>
+      <node pkg="rqt_gui" type="rqt_gui" name="rqt_gui" args="--perspective-file $(find sound_classification)/config/spectrogram_classification.perspective"/>
+      <node pkg="usb_cam" type="usb_cam_node" name="usb_cam_node" />
+  </group>
+
+</launch>
