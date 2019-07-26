@@ -23,7 +23,7 @@ NOTE: You can change microphone by giving `microphone_name` argument to this ros
 
 NOTE: You can change threshold of hitting detection by giving `hit_volume_threshold` argument to this roslaunch.
 
-3. Create dataset for training with chainer. (Train dataset is augmented, but test dataset is not augmented.)
+3. Create dataset for training with chainer (Train dataset is augmented, but test dataset is not augmented). At the same time, mean of dataset is calculated. (saved in `mean_of_dataset.npy`)
 ```bash
 rosrun sound_classification create_dataset.py
 ```

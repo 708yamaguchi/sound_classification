@@ -9,12 +9,12 @@ import chainer
 from chainer import dataset
 from chainer import training
 from chainer.training import extensions
-from chainer_modules import dali_util
 from chainer_modules import nin
 
 import matplotlib
 import numpy as np
 import os.path as osp
+from PIL import Image as Image_
 import rospkg
 
 matplotlib.use('Agg')  # necessary not to raise Tcl_AsyncDelete Error
@@ -32,11 +32,8 @@ class PreprocessedDataset(chainer.dataset.DatasetMixin):
         return len(self.base)
 
     def get_example(self, i):
-        image, label = self.base[i]
-        image = image[[2, 1, 0], :, :]  # bgr -> rgb
-
-        # image -= self.mean[:, top:bottom, left:right]
-        image -= self.mean  # image is np.astype(np.float32)
+        image, label = self.base[i]  # (3, 256, 256), rgb
+        image -= self.mean
         image *= (1.0 / 255.0)  # Scale to [0, 1]
         return image, label
 
@@ -87,8 +84,8 @@ def main():
                         help='Number of parallel data loading processes')
     parser.add_argument('--mean', '-m', default=osp.join(
         rospack.get_path('sound_classification'),
-        'scripts', 'chainer_modules', 'mean.npy'),
-                        help='Mean file (computed by compute_mean.py)')
+        'train_data', 'dataset', 'mean_of_dataset.png'),
+                        help='Mean value of dataset')
     parser.add_argument('--resume', '-r', default='',
                         help='Initialize the trainer from given file')
     parser.add_argument('--out', '-o', default=osp.join(
@@ -100,8 +97,6 @@ def main():
                         help='Root directory path of image files')
     parser.add_argument('--val_batchsize', '-b', type=int, default=250,
                         help='Validation minibatch size')
-    parser.add_argument('--dali', action='store_true')
-    parser.set_defaults(dali=False)
     group = parser.add_argument_group('deprecated arguments')
     group.add_argument('--gpu', '-g', dest='device',
                        type=int, nargs='?', const=0,
@@ -133,42 +128,21 @@ def main():
     model.to_device(device)
     device.use()
 
-    # Load the mean file
-    mean = np.load(args.mean)
-    if args.dali:
-        if not dali_util._dali_available:
-            raise RuntimeError('DALI seems not available on your system.')
-        if device.xp is not chainer.backend.cuda.cupy:
-            raise RuntimeError('Using DALI requires GPU device. Please '
-                               'specify it with --device option.')
-        num_threads = args.loaderjob
-        if num_threads is None or num_threads <= 0:
-            num_threads = 1
-        ch_mean = list(np.average(mean, axis=(1, 2)))
-        ch_std = [255.0, 255.0, 255.0]
-        # Setup DALI pipelines
-        train_pipe = dali_util.DaliPipelineTrain(
-            args.train, args.root, model.insize, args.batchsize,
-            num_threads, device.device.id, True, mean=ch_mean, std=ch_std)
-        val_pipe = dali_util.DaliPipelineVal(
-            args.val, args.root, model.insize, args.val_batchsize,
-            num_threads, device.device.id, False, mean=ch_mean, std=ch_std)
-        train_iter = chainer.iterators.DaliIterator(train_pipe)
-        val_iter = chainer.iterators.DaliIterator(val_pipe, repeat=False)
-        # converter = dali_converter
-        converter = dali_util.DaliConverter(mean=mean, crop_size=model.insize)
-    else:
-        # Load the dataset files
-        train = PreprocessedDataset(args.train, args.root, mean, model.insize)
-        val = PreprocessedDataset(args.val, args.root, mean, model.insize,
-                                  False)
-        # These iterators load the images with subprocesses running in parallel
-        # to the training/validation.
-        train_iter = chainer.iterators.MultiprocessIterator(
-            train, args.batchsize, n_processes=args.loaderjob)
-        val_iter = chainer.iterators.MultiprocessIterator(
-            val, args.val_batchsize, repeat=False, n_processes=args.loaderjob)
-        converter = dataset.concat_examples
+    # Load mean value of dataset
+    mean = np.array(Image_.open(args.mean), np.float32).transpose(
+        (2, 0, 1))  # (256,256,3) -> (3,256,256), rgb
+
+    # Load the dataset files
+    train = PreprocessedDataset(args.train, args.root, mean, model.insize)
+    val = PreprocessedDataset(args.val, args.root, mean, model.insize,
+                              False)
+    # These iterators load the images with subprocesses running in parallel
+    # to the training/validation.
+    train_iter = chainer.iterators.MultiprocessIterator(
+        train, args.batchsize, n_processes=args.loaderjob)
+    val_iter = chainer.iterators.MultiprocessIterator(
+        val, args.val_batchsize, repeat=False, n_processes=args.loaderjob)
+    converter = dataset.concat_examples
 
     # Set up an optimizer
     optimizer = chainer.optimizers.MomentumSGD(lr=0.01, momentum=0.9)

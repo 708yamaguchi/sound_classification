@@ -69,6 +69,8 @@ def split():
     dataset_dir = osp.join(root_dir, 'dataset')
     image_list_train = []
     image_list_test = []
+    mean_of_dataset = np.zeros((256, 256, 3)).astype(np.float32)
+    size_of_dataset = 0
 
     if osp.exists(dataset_dir):
         shutil.rmtree(dataset_dir)
@@ -88,6 +90,8 @@ def split():
             saved_file_name = class_name + file_name
             img = Image_.open(osp.join(origin_dir, class_name, file_name))
             img_resize = img.resize((256, 256))
+            mean_of_dataset += img_resize
+            size_of_dataset += 1
             if i < file_num * rate:  # save data for train
                 saved_file_name = 'train_' + saved_file_name
                 for j in range(int(args.augment)):
@@ -114,6 +118,12 @@ def split():
         with open(file_path, mode='w') as f:
             for line_ in image_list_test:
                 f.write(line_)
+
+    # save mean value of dataset
+    file_path = osp.join(dataset_dir, 'mean_of_dataset.png')
+    saved_image = Image_.fromarray(
+        (mean_of_dataset / size_of_dataset).astype(np.uint8))
+    saved_image.save(file_path)
 
 
 if __name__ == '__main__':
