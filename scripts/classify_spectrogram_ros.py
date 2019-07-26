@@ -54,9 +54,10 @@ class ClassifySpectrogramROS:
         device.use()
 
         # Load the mean file
-        mean_file_path = osp.join('/'.join(initmodel.split('/')[:-2]),
-                                  'chainer_modules', 'mean.npy')
-        self.mean = np.load(mean_file_path)
+        mean_file_path = osp.join(rospack.get_path('sound_classification'),
+                                  'train_data', 'dataset', 'mean_of_dataset.png')
+        self.mean = np.array(Image_.open(mean_file_path), np.float32).transpose(
+            (2, 0, 1))  # (256,256,3) -> (3,256,256), rgb
 
         # Set up an optimizer
         optimizer = chainer.optimizers.MomentumSGD(lr=0.01, momentum=0.9)
@@ -76,10 +77,11 @@ class ClassifySpectrogramROS:
         with chainer.using_config('train', False), \
              chainer.no_backprop_mode():
             x_data = np.array(Image_.fromarray(cv_image).resize((256, 256))).astype(np.float32)
-            x_data = x_data.transpose((2, 0, 1))
+            x_data = x_data.transpose(
+                (2, 0, 1))[[2, 1, 0], :, :]  # (256,256,3) -> (3,256,256), bgr -> rgb
             mean = self.mean.astype(np.float32)
             x_data -= mean
-            x_data *= (1.0 / 255.0)  # Scale to [0, 1]
+            x_data *= (1.0 / 255.0)  # Scale to [0, 1.0]
             # fowarding once
             x_data = cuda.to_gpu(x_data[None], device=self.gpu)
             x_data = chainer.Variable(x_data)

@@ -34,7 +34,7 @@ class PreprocessedDataset(chainer.dataset.DatasetMixin):
     def get_example(self, i):
         image, label = self.base[i]  # (3, 256, 256), rgb
         image -= self.mean
-        image *= (1.0 / 255.0)  # Scale to [0, 1]
+        image *= (1.0 / 255.0)  # Scale to [0, 1.0]
         return image, label
 
 
