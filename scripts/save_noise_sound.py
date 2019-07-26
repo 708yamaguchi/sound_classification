@@ -13,11 +13,12 @@ import time
 if __name__ == '__main__':
     rospy.init_node('save_noise_sound.py', anonymous=True)
     rospy.sleep(0.1)  # do not save typing sound
+    record_time = 3.0
     time_start = time.time()
     mean_noise_sound = None
     sound_count = 0
-    while(time.time() - time_start < 3.0):
-        msg = rospy.wait_for_message('/microphone/spectrum', Spectrum)
+    while(time.time() - time_start < record_time):
+        msg = rospy.wait_for_message('/microphone/sound_spec_raw', Spectrum)
         if mean_noise_sound is None:
             mean_noise_sound = np.array(msg.spectrum)
         else:
@@ -30,5 +31,6 @@ if __name__ == '__main__':
     file_name = osp.join(rospack.get_path(
         'sound_classification'), 'scripts', 'mean_noise_sound')
     np.save(file_name, mean_noise_sound)
-    rospy.loginfo('saved {}'.format(file_name))
+    rospy.loginfo('Record {} seconds'.format(record_time))
+    rospy.loginfo('Saved {}.npy'.format(file_name))
     rospy.signal_shutdown('finish')

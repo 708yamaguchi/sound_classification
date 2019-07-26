@@ -28,8 +28,13 @@ class ListenMicrophone:
         self.channels = 1
         self.format = pyaudio.paFloat32
         rospack = rospkg.RosPack()
-        self.mean_noise_sound = np.load(rospack.get_path(
-            'sound_classification'), 'scripts', 'mean_noise_sound')
+        file_path = osp.join(rospack.get_path(
+            'sound_classification'), 'scripts', 'mean_noise_sound.npy')
+        if osp.exists(file_path):
+            self.mean_noise_sound = np.load(file_path)
+        else:
+            rospy.logerr('create mean noise sound by rosrun sound_classification save_noise_sound.py')
+            exit()
         # search for microphone
         self.device_index = True
         for index in range(0, self.p.get_device_count()):
@@ -67,6 +72,8 @@ class ListenMicrophone:
         # publisher
         self.wave_pub = rospy.Publisher(  # sound wave data, the length is self.length
             '/microphone/wave', Wave, queue_size=1)
+        self.spectrum_raw_pub = rospy.Publisher(  # sound spectrum, which is fft of wave data
+            '/microphone/sound_spec_raw', Spectrum, queue_size=1)
         self.spectrum_pub = rospy.Publisher(  # sound spectrum, which is fft of wave data
             '/microphone/sound_spec', Spectrum, queue_size=1)
         self.vol_pub = rospy.Publisher(  # current volume
@@ -77,10 +84,11 @@ class ListenMicrophone:
             '/microphone/hit_spectrogram', Image)
 
         # published msg
-        self.wavemsg = Wave()
-        self.specmsg = Spectrum()
-        self.volmsg = Volume()
-        self.imgmsg = Image()
+        self.wave_msg = Wave()
+        self.spec_raw_msg = Spectrum()
+        self.spec_msg = Spectrum()
+        self.vol_msg = Volume()
+        self.img_msg = Image()
 
     def process(self):
         stamp = rospy.Time.now()
@@ -90,18 +98,22 @@ class ListenMicrophone:
 
         # calc wave
         wave = self.data*self.window
-        self.wavemsg.wave = wave
-        self.wavemsg.header.stamp = stamp
+        self.wave_msg.wave = wave
+        self.wave_msg.header.stamp = stamp
 
         # calc volume
         vol = np.sqrt(np.mean(self.data**2))  # effective value
-        self.volmsg.volume = vol
-        self.volmsg.header.stamp = stamp
+        self.vol_msg.volume = vol
+        self.vol_msg.header.stamp = stamp
 
         # calc spectrum
         spec = np.abs(np.fft.fft(wave))
-        self.specmsg.spectrum = spec
-        self.specmsg.header.stamp = stamp
+        self.spec_raw_msg.spectrum = spec
+        self.spec_raw_msg.header.stamp = stamp
+        spec = spec - self.mean_noise_sound
+        spec = np.where(spec > 0, spec, self.mean_noise_sound * 0.01)  # Spectral Subtraction method
+        self.spec_msg.spectrum = spec
+        self.spec_msg.header.stamp = stamp
 
         # calc spectrogram
         spec_data = np.array(spec[:self.visualize_data_length])  # remove folding noise
@@ -110,18 +122,19 @@ class ListenMicrophone:
         normalized_spec_data = self.wave_spec_queue / np.max(self.wave_spec_queue)
         jet_img = np.array(cm.jet(1 - normalized_spec_data)[:, :, :3] * 255, np.uint8)
         jet_img_transposed = jet_img.transpose(1, 0, 2)[::-1]
-        imgmsg = self.bridge.cv2_to_imgmsg(jet_img_transposed, 'bgr8')
+        img_msg = self.bridge.cv2_to_imgmsg(jet_img_transposed, 'bgr8')
 
         # publish msg
-        self.spectrum_pub.publish(self.specmsg)
-        self.vol_pub.publish(self.volmsg)
-        self.wave_pub.publish(self.wavemsg)
-        self.spectrogram_pub.publish(imgmsg)
+        self.wave_pub.publish(self.wave_msg)
+        self.vol_pub.publish(self.vol_msg)
+        self.spectrum_raw_pub.publish(self.spec_raw_msg)
+        self.spectrum_pub.publish(self.spec_msg)
+        self.spectrogram_pub.publish(img_msg)
         if vol > self.hit_volume_thre:
             self.count_from_last_hitting = 0
         else:  # publish (save) hit_spectrogram a little after hitting
             if self.count_from_last_hitting == self.queue_size / 3:
-                self.hit_spectrogram_pub.publish(imgmsg)
+                self.hit_spectrogram_pub.publish(img_msg)
         self.count_from_last_hitting += 1
 
     def destruct(self):
