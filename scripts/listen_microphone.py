@@ -110,8 +110,11 @@ class ListenMicrophone:
         spec = np.abs(np.fft.fft(wave))
         self.spec_raw_msg.spectrum = spec
         self.spec_raw_msg.header.stamp = stamp
-        spec = spec - self.mean_noise_sound
-        spec = np.where(spec > 0, spec, self.mean_noise_sound * 0.01)  # Spectral Subtraction method
+        try:
+            spec = spec - self.mean_noise_sound
+            spec = np.where(spec > 0, spec, self.mean_noise_sound * 0.01)  # Spectral Subtraction method
+        except ValueError:
+            rospy.logwarn('mean_noise_sound.npy may be old. $ roslaunch sound_classification save_noise_sound.launch')
         self.spec_msg.spectrum = spec
         self.spec_msg.header.stamp = stamp
 
