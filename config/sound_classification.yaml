@@ -1,7 +1,7 @@
 # frequency resolution of fft: (rate / length)
 microphone:
   name: default # microphone name
-  langth: 512 # the number of sampling data in fft
+  length: 512 # the number of sampling data in fft
   rate: 44100 # sampling rate of microphone
 
 listen_microphone:
