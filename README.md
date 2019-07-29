@@ -4,6 +4,12 @@ Usage
 ## Quick demo
 This is sound classification demo using ThinkPad's build-in camera and microphone. 3 class classification using spectrogram (applause, flick, voice)
 ```
+mkdir -p ~/tmp_ws/src
+cd ~/tmp_ws/src
+git clone https://github.com/708yamaguchi/sound_classification.git
+cd ../
+catkin build
+source ~/tmp_ws/devel/setup.bash
 rosrun sound_classification create_dataset.py            # create dataset from spectrogram
 rosrun sound_classification train.py --gpu 0 --epoch 100 # train
 roslaunch sound_classification microphone.launch         # classification on ROS
