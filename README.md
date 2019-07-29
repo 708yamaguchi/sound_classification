@@ -18,9 +18,9 @@ roslaunch sound_classification microphone.launch         # classification on ROS
 ![Experiment](https://github.com/708yamaguchi/sound_classification/blob/media/sound_classification_compressed.gif)
 
 
-Upper left : Estimated class
-Left       : spectrogram
-Right      : Video
+ - Upper left: Estimated class
+ - Left: spectrogram
+ - Right: Video
 
 
 ## Commands
