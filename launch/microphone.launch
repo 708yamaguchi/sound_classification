@@ -28,7 +28,7 @@
   </group>
   <!-- visualization of sound classification in rqt -->
   <group if="$(arg rqt)">
-    <node pkg="rqt_gui" type="rqt_gui" name="rqt_gui" args="--perspective-file $(find sound_classification)/config/spectrogram_classification.perspective"/>
+    <node pkg="rqt_gui" type="rqt_gui" name="rqt_gui" args="--perspective-file $(find sound_classification)/config/sound_classification.perspective"/>
     <node pkg="usb_cam" type="usb_cam_node" name="usb_cam_node" />
   </group>
 
