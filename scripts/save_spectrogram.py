@@ -27,12 +27,16 @@ class SaveSpectrogram:
         if not os.path.exists(self.image_save_dir):
             os.makedirs(self.image_save_dir)
         self.bridge = CvBridge()
+        self.is_first = True
 
         # subscribe
         self.hit_spectrogram_sub = rospy.Subscriber(
             '/microphone/hit_spectrogram', Image, self.hit_spectrogram_cb)
 
     def hit_spectrogram_cb(self, msg):
+        if self.is_first:  # do not save first spectrogram (noisy)
+            self.is_first = False
+            return
         file_num = len(os.listdir(self.image_save_dir)) + 1  # start from 00001.npy
         file_name = osp.join(self.image_save_dir, '{0:05d}.png'.format(file_num))
         # get image from rostopic
