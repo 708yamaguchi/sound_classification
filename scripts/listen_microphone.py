@@ -44,7 +44,11 @@ class ListenMicrophone:
             print('Cannot find audio device!')
             sys.exit()
         # config for fft
+        self.cutoff_rate = rospy.get_param('~cutoff_rate', self.rate/2)
         self.f = np.fft.fftfreq(self.length, d=1.0/self.rate)
+        cutoff_f = self.f[self.f < self.cutoff_rate]
+        cutoff_f = cutoff_f[cutoff_f > 0]
+        rospy.loginfo('frequency list of fft:\n{}'.format(cutoff_f))
         self.data = np.zeros((self.length, self.channels))
         self.window = np.hamming(self.length)
         self.stream = self.p.open(format=self.format,
@@ -55,7 +59,6 @@ class ListenMicrophone:
                                   input_device_index=self.device_index,
                                   frames_per_buffer=self.length)
         # config for spectrogram
-        self.cutoff_rate = rospy.get_param('~cutoff_rate', self.rate/2)
         self.hit_volume_thre = rospy.get_param('~hit_volume_threshold', 0)
         self.visualize_data_length = min(
             int(self.length * self.cutoff_rate / self.rate), self.length/2)
@@ -154,4 +157,5 @@ class ListenMicrophone:
 
 if __name__ == '__main__':
     lm = ListenMicrophone()
+    rospy.sleep(0.2)  # do not listen to first sound (noisy)
     lm.run()
