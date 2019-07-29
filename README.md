@@ -18,10 +18,10 @@ Right      : Video
 
 
 ## Commands
-0. Save configs of sound classification in `config/sound_classification.yaml`. (e.g. microphone name, sampling rate, etc)
+0. Save configs of sound classification in `config/sound_classification.yaml` (e.g. microphone name, sampling rate, etc). These parameters must not be changed in the following steps.
 
 1. Record noise sound to calibrate microphone (Spectral Subtraction method). The noise sound is recorded in `scripts/mean_noise_sound.npy`.
-```
+```bash
 roslaunch sound_classification save_noise_sound.launch
 ```
 
@@ -31,7 +31,7 @@ roslaunch sound_classification save_spectrogram.launch target_class:=(taget obje
 ```
 NOTE: You can change microphone by giving `microphone_name` argument to this roslaunch. The names of microphones can be seen by `pyaudio.PyAudio().get_device_info_by_index(index)` fuction.
 
-NOTE: You can change threshold of hitting detection by giving `hit_volume_threshold` argument to this roslaunch.
+  NOTE: You can change threshold of hitting detection by giving `hit_volume_threshold` argument to this roslaunch.
 
 3. Create dataset for training with chainer (Train dataset is augmented, but test dataset is not augmented). At the same time, mean of dataset is calculated. (saved in `train_data/dataset/mean_of_dataset.png`)
 ```bash
@@ -65,4 +65,6 @@ roslaunch sound_classification play_sound_classification.launch filename:=$HOME/
 
 Microphone
 ==========
-ThinkPad T460s build-in microphone
+Worked on:
+ - ThinkPad T460s build-in microphone
+ - MINI Microphone (http://akizukidenshi.com/catalog/g/gM-12864/)
