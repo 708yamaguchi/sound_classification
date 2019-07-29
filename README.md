@@ -18,14 +18,23 @@ Right      : Video
 
 
 ## Commands
-0. Save configs of sound classification in `config/sound_classification.yaml` (e.g. microphone name, sampling rate, etc). These parameters must not be changed in the following steps.
+0. Download this package and catkin build.
+```
+mkdir -p ~/tmp_ws/src
+cd ~/tmp_ws/src
+git clone https://github.com/708yamaguchi/sound_classification.git
+catkin build
+source ~/tmp_ws/devel/setup.bash
+```
 
-1. Record noise sound to calibrate microphone (Spectral Subtraction method). The noise sound is recorded in `scripts/mean_noise_sound.npy`.
+1. Set configs of sound classification in `config/sound_classification.yaml` (e.g. microphone name, sampling rate, etc). These parameters must not be changed in the following steps.
+
+2. Record noise sound to calibrate microphone (Spectral Subtraction method). The noise sound is recorded in `scripts/mean_noise_sound.npy`. Be quiet during this command.
 ```bash
 roslaunch sound_classification save_noise_sound.launch
 ```
 
-2. Save your original spectrogram in `train_data/original_spectrogram`. Specify target object class.
+3. Save your original spectrogram in `train_data/original_spectrogram`. Specify target object class.
 ```bash
 roslaunch sound_classification save_spectrogram.launch target_class:=(taget object class)
 ```
@@ -33,28 +42,28 @@ NOTE: You can change microphone by giving `microphone_name` argument to this ros
 
   NOTE: You can change threshold of hitting detection by giving `hit_volume_threshold` argument to this roslaunch.
 
-3. Create dataset for training with chainer (Train dataset is augmented, but test dataset is not augmented). At the same time, mean of dataset is calculated. (saved in `train_data/dataset/mean_of_dataset.png`)
+4. Create dataset for training with chainer (Train dataset is augmented, but test dataset is not augmented). At the same time, mean of dataset is calculated. (saved in `train_data/dataset/mean_of_dataset.png`)
 ```bash
 rosrun sound_classification create_dataset.py
 ```
 
-4. Visualize created dataset (`train` or `test` must be selected as an argument)
+5. Visualize created dataset (`train` or `test` must be selected as an argument)
 ```bash
 rosrun sound_classification visualize_dataset.py train
 ```
 
-5. Train with chainer. Results are output in `scripts/result`
+6. Train with chainer. Results are output in `scripts/result`
 ```bash
 rosrun sound_classification train.py --gpu 0 --epoch 100
 ```
 NOTE: Only `NIN` architecture is available now.
 
-6. Classify spectrogram on ROS. (Results are visualized in rqt)
+7. Classify spectrogram on ROS. (Results are visualized in rqt)
 ```bash
 roslaunch sound_classification microphone.launch
 ```
 
-7. Record/Play rosbag
+8. Record/Play rosbag
 ```bash
 # record
 roslaunch sound_classification record_sound_classification.launch filename:=$HOME/.ros/hoge.bag
