@@ -9,6 +9,7 @@
   <arg name="classification" default="true"/> <!-- online sound classification on ROS -->
   <arg name="rqt" default="true"/> <!-- visualize spectrogram, object class and camera image on rqt -->
 
+  <!-- frequency resolution of fft: $(arg rate) / $(arg length) -->
   <param name="/microphone/name" value="$(arg microphone_name)"/>
   <param name="/microphone/length" value="$(arg length)"/>
   <param name="/microphone/rate" value="$(arg rate)"/>
