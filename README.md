@@ -15,7 +15,7 @@ rosrun sound_classification train.py --gpu 0 --epoch 100 # train
 roslaunch sound_classification microphone.launch         # classification on ROS
 ```
 
-![Experiment](https://github.com/708yamaguchi/sound_classification/blob/media/spectrogram_classification_with_thinkpad.gif)
+![Experiment](https://github.com/708yamaguchi/sound_classification/blob/media/sound_classification_compressed.gif)
 
 
 Upper left : Estimated class
