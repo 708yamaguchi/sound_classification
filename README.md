@@ -2,7 +2,7 @@ Usage
 =====
 
 ## Quick demo
-This is sound classification demo using ThinkPad's build-in camera and microphone. 3 class classification using spectrogram (applause, flick, voice)
+This is sound classification demo using ThinkPad's build-in camera and microphone. 3 class classification using spectrogram.
 ```
 mkdir -p ~/tmp_ws/src
 cd ~/tmp_ws/src
@@ -18,7 +18,7 @@ roslaunch sound_classification microphone.launch         # classification on ROS
 ![Experiment](https://github.com/708yamaguchi/sound_classification/blob/media/sound_classification_compressed.gif)
 
 
- - Upper left: Estimated class
+ - Upper left: Estimated class (applause, flick, voice)
  - Left: spectrogram
  - Right: Video
 
