@@ -18,6 +18,8 @@ Right      : Video
 
 
 ## Commands
+0. Save configs of sound classification in `config/sound_classification.yaml`. (e.g. microphone name, sampling rate, etc)
+
 1. Record noise sound to calibrate microphone (Spectral Subtraction method). The noise sound is recorded in `scripts/mean_noise_sound.npy`.
 ```
 roslaunch sound_classification save_noise_sound.launch
