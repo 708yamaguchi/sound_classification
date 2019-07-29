@@ -157,5 +157,4 @@ class ListenMicrophone:
 
 if __name__ == '__main__':
     lm = ListenMicrophone()
-    rospy.sleep(0.2)  # do not listen to first sound (noisy)
     lm.run()
