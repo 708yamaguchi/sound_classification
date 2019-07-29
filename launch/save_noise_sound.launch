@@ -1,6 +1,5 @@
 <launch>
   <arg name="microphone_name" default="default"/> <!-- default microphone on thinkpad T460s -->
-  <arg name="chunk" default="512"/>
   <arg name="length" default="512"/>
   <arg name="rate" default="44100"/>
   <arg name="cutoff_rate" default="8000"/>
@@ -10,7 +9,6 @@
   <!-- publish sound topics from microphone -->
   <include file="$(find sound_classification)/launch/microphone.launch" >
     <arg name="microphone_name" value="$(arg microphone_name)"/>
-    <arg name="chunk" value="$(arg chunk)"/>
     <arg name="length" value="$(arg length)"/>
     <arg name="rate" value="$(arg rate)"/>
     <arg name="cutoff_rate" value="$(arg cutoff_rate)"/>

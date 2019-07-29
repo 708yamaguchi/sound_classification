@@ -1,18 +1,16 @@
 <launch>
   <arg name="microphone_name" default="default"/> <!-- default microphone on thinkpad T460s -->
-  <arg name="chunk" default="512"/>
-  <arg name="length" default="512"/>
-  <arg name="rate" default="44100"/>
-  <arg name="cutoff_rate" default="8000"/>
-  <arg name="hit_volume_threshold" default="0.01"/>
-  <arg name="time_to_listen" default="0.3"/>
-  <arg name="save_image" default="false"/>
-  <arg name="target_class" default="table"/>
-  <arg name="classification" default="true"/>
-  <arg name="rqt" default="true"/>
+  <arg name="length" default="512"/> <!-- the number of sampling data in fft -->
+  <arg name="rate" default="44100"/> <!-- sampling rate of microphone -->
+  <arg name="cutoff_rate" default="8000"/> <!-- cutoff the high frequency data from fft result -->
+  <arg name="hit_volume_threshold" default="0.01"/> <!-- volume threshold to detect sound -->
+  <arg name="time_to_listen" default="0.3"/> <!-- time to publish spectrogram (= spectrogram publishing rate), not length of window function) -->
+  <arg name="save_image" default="false"/> <!-- save spectrogram in train/original_spectrogram -->
+  <arg name="target_class" default="table"/> <!-- target class of saved spectrogram -->
+  <arg name="classification" default="true"/> <!-- online sound classification on ROS -->
+  <arg name="rqt" default="true"/> <!-- visualize spectrogram, object class and camera image on rqt -->
 
   <param name="/microphone/name" value="$(arg microphone_name)"/>
-  <param name="/microphone/chunk" value="$(arg chunk)"/>
   <param name="/microphone/length" value="$(arg length)"/>
   <param name="/microphone/rate" value="$(arg rate)"/>
 

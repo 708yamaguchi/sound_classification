@@ -22,7 +22,6 @@ class ListenMicrophone:
         self.p = pyaudio.PyAudio()
         # config for microphone
         self.microphone_name = rospy.get_param('/microphone/name', 'default')
-        self.chunk = rospy.get_param('/microphone/chunk', 512)  # chunk is like a buffer, each buffer will contain chunk samples
         self.length = rospy.get_param('/microphone/length', 512)  # length relates hamming window range
         self.rate = rospy.get_param('/microphone/rate', 44100)
         self.channels = 1
@@ -54,7 +53,7 @@ class ListenMicrophone:
                                   input=True,
                                   output=False,
                                   input_device_index=self.device_index,
-                                  frames_per_buffer=self.chunk)
+                                  frames_per_buffer=self.length)
         # config for spectrogram
         self.cutoff_rate = rospy.get_param('~cutoff_rate', self.rate/2)
         self.hit_volume_thre = rospy.get_param('~hit_volume_threshold', 0)
@@ -92,7 +91,7 @@ class ListenMicrophone:
 
     def process(self):
         stamp = rospy.Time.now()
-        tmp = self.stream.read(self.chunk)  # sound input -> float32 array
+        tmp = self.stream.read(self.length)  # sound input -> float32 array
         data = np.fromstring(tmp, np.float32)
         self.data = np.array(data)
 
