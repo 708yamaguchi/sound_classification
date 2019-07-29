@@ -1,5 +1,5 @@
 Usage
-=====
+1;4205;0c=====
 
 ## Quick demo
 This is sound classification demo using ThinkPad's build-in camera and microphone. 3 class classification using spectrogram (applause, flick, voice)
@@ -36,6 +36,15 @@ source ~/tmp_ws/devel/setup.bash
 
 1. Set configs of sound classification in `config/sound_classification.yaml` (e.g. microphone name, sampling rate, etc). These parameters must not be changed in the following steps.
 
+  You can get list of microphone names by following command.
+```
+import pyaudio
+p = pyaudio.PyAudio()
+for index in range(p.get_device_count()):
+    print(p.get_device_info_by_index(index)['name'])
+```
+
+
 2. Record noise sound to calibrate microphone (Spectral Subtraction method). The noise sound is recorded in `scripts/mean_noise_sound.npy`. Be quiet during this command.
 ```bash
 roslaunch sound_classification save_noise_sound.launch
@@ -45,7 +54,6 @@ roslaunch sound_classification save_noise_sound.launch
 ```bash
 roslaunch sound_classification save_spectrogram.launch target_class:=(taget object class)
 ```
-NOTE: You can change microphone by giving `microphone_name` argument to this roslaunch. The names of microphones can be seen by `pyaudio.PyAudio().get_device_info_by_index(index)` fuction.
 
   NOTE: You can change threshold of hitting detection by giving `hit_volume_threshold` argument to this roslaunch.
 
@@ -65,10 +73,11 @@ rosrun sound_classification train.py --gpu 0 --epoch 100
 ```
 NOTE: Only `NIN` architecture is available now.
 
-7. Classify spectrogram on ROS. (Results are visualized in rqt)
+7. Classify spectrogram on ROS. Results are visualized in rqt.
 ```bash
 roslaunch sound_classification microphone.launch
 ```
+NOTE: If you don't have enough GPU machine, classification process will be very slow. (In my environment, GeForce 930M is enough.)
 
 8. Record/Play rosbag
 ```bash
