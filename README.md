@@ -25,7 +25,7 @@ roslaunch sound_classification save_noise_sound.launch
 
 2. Save your original spectrogram in `train_data/original_spectrogram`. Specify target object class.
 ```bash
-roslaunch sound_classification microphone.launch save_image:=true target_class:=(taget object class)
+roslaunch sound_classification save_spectrogram.launch target_class:=(taget object class)
 ```
 NOTE: You can change microphone by giving `microphone_name` argument to this roslaunch. The names of microphones can be seen by `pyaudio.PyAudio().get_device_info_by_index(index)` fuction.
 
