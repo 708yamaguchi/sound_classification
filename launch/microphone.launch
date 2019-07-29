@@ -3,7 +3,7 @@
   <arg name="rqt" default="true"/> <!-- visualize spectrogram, object class and camera image on rqt -->
 
   <!-- load configs of sound_classification -->
-  <rosparam command="load" file="$(find sound_classification)/config/sound_classification.yaml"/>
+  <rosparam command="load" file="$(find sound_classification)/config/sound_classification.yaml" subst_value="true" />
 
   <!-- publish sound topics from microphone -->
   <node pkg="sound_classification" type="listen_microphone.py" name="listen_microphone" output="screen" respawn="true" />
