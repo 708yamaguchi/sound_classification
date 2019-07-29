@@ -4,7 +4,7 @@
   <arg name="rate" default="44100"/> <!-- sampling rate of microphone -->
   <arg name="cutoff_rate" default="8000"/> <!-- cutoff the high frequency data from fft result -->
   <arg name="hit_volume_threshold" default="0.01"/> <!-- volume threshold to detect sound -->
-  <arg name="time_to_listen" default="1.0"/> <!-- time to publish spectrogram (= spectrogram publishing rate), not length of window function) -->
+  <arg name="time_to_listen" default="1.0"/> <!-- total time of horizontal axis of spectrogram -->
   <arg name="target_class" default="table"/> <!-- target class of saved spectrogram -->
   <arg name="classification" default="false"/> <!-- online sound classification on ROS -->
   <arg name="rqt" default="false"/> <!-- visualize spectrogram, object class and camera image on rqt -->
