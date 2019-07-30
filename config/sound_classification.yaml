@@ -6,7 +6,7 @@ microphone:
 
 listen_microphone:
   cutoff_rate: 8000 # cutoff the high frequency data from fft result
-  hit_volume_threshold: 0.01 # volume threshold to detect sound
+  hit_volume_threshold: 0.1 # volume threshold to detect sound. set best threshold for your microphone
   time_to_listen: 0.3 # total time of horizontal axis of spectrogram
 
 classify_spectrogram_ros:
