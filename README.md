@@ -71,7 +71,7 @@ rosrun sound_classification visualize_dataset.py train
 
 6. Train with chainer. Results are output in `scripts/result`
 ```bash
-rosrun sound_classification train.py --gpu 0 --epoch 100
+rosrun sound_classification train.py --gpu 0 --epoch 20
 ```
 NOTE: Only `NIN` architecture is available now.
 
