@@ -13,7 +13,7 @@ cd ../
 catkin build
 source ~/tmp_ws/devel/setup.bash
 rosrun sound_classification create_dataset.py            # create dataset from spectrogram (.png files)
-rosrun sound_classification train.py --gpu 0 --epoch 20 # train
+rosrun sound_classification train.py --gpu 0 --epoch 20  # train
 roslaunch sound_classification save_noise_sound.launch   # collect environmental noise sound
 roslaunch sound_classification microphone.launch         # classification on ROS
 ```
