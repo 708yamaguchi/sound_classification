@@ -2,7 +2,7 @@ Usage
 =====
 
 ## Quick demo
-This is sound classification demo using ThinkPad's build-in camera and microphone. 3 class classification using spectrogram.
+This is sound classification demo using ThinkPad's build-in microphone.
 
 If classification result is not shown in rqt, check `hit_volume_threshold` in `config/sound_classification.yaml` and reload the panel on rqt.
 ```
