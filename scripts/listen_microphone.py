@@ -35,7 +35,7 @@ class ListenMicrophone:
         self.device_index = True
         for index in range(0, self.p.get_device_count()):
             device_info = self.p.get_device_info_by_index(index)
-            if u'default' in device_info['name']:
+            if self.microphone_name in device_info['name']:
                 self.device_index = device_info['index']
         if self.device_index is True:
             print('Cannot find audio device!')
