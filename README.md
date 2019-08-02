@@ -6,12 +6,12 @@ This is sound classification demo using ThinkPad's build-in microphone.
 
 If classification result is not shown in rqt, set `hit_volume_threshold` in `config/sound_classification.yaml` lower.
 ```
-mkdir -p ~/tmp_ws/src
-cd ~/tmp_ws/src
+mkdir -p ~/audio_ws/src
+cd ~/audio_ws/src
 git clone https://github.com/708yamaguchi/sound_classification.git
 cd ../
 catkin build
-source ~/tmp_ws/devel/setup.bash
+source ~/audio_ws/devel/setup.bash
 rosrun sound_classification create_dataset.py            # create dataset from spectrogram (.png files)
 rosrun sound_classification train.py --gpu 0 --epoch 20  # train
 roslaunch sound_classification save_noise_sound.launch   # collect environmental noise sound
@@ -29,12 +29,12 @@ roslaunch sound_classification microphone.launch         # classification on ROS
 ## Commands
 0. Download this package and catkin build.
 ```
-mkdir -p ~/tmp_ws/src
-cd ~/tmp_ws/src
+mkdir -p ~/audio_ws/src
+cd ~/audio_ws/src
 git clone https://github.com/708yamaguchi/sound_classification.git
 cd ../
 catkin build
-source ~/tmp_ws/devel/setup.bash
+source ~/audio_ws/devel/setup.bash
 ```
 
 1. Set configs of sound classification in `config/sound_classification.yaml` (e.g. microphone name, sampling rate, etc). These parameters must not be changed in the following steps.
