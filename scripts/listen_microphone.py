@@ -74,7 +74,7 @@ class ListenMicrophone:
         self.data = np.array(data)
 
         # calc wave
-        wave = self.data*self.window
+        wave = self.data
         self.wave_msg.wave = wave
         self.wave_msg.header.stamp = stamp
 
@@ -84,7 +84,7 @@ class ListenMicrophone:
         self.vol_msg.header.stamp = stamp
 
         # calc spectrum
-        spec = np.abs(np.fft.fft(wave))
+        spec = np.abs(np.fft.fft(wave*self.window))
         self.spec_raw_msg.spectrum = spec
         self.spec_raw_msg.header.stamp = stamp
         try:
