@@ -84,8 +84,10 @@ NOTE: If you don't have enough GPU machine, classification process will be very 
 8. Record/Play rosbag
 ```bash
 # record
+roslaunch sound_classification microphone.launch
 roslaunch sound_classification record_sound_classification.launch filename:=$HOME/.ros/hoge.bag
 # play
+rossetlocal
 roslaunch sound_classification play_sound_classification.launch filename:=$HOME/.ros/hoge.bag
 ```
 
