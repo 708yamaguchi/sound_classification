@@ -1,16 +1,13 @@
 #!/usr/bin/env python
 
-# This node connects to microphone and publish ROS msg
+# This node publishes wave, spectrogram and volume topics from microphone
 
-from cv_bridge import CvBridge
 from sound_classification.msg import Spectrum, Volume, Wave
-import matplotlib.cm as cm
 import numpy as np
 import os.path as osp
 import pyaudio
 import rospkg
 import rospy
-from sensor_msgs.msg import Image
 import sys
 
 
@@ -44,11 +41,6 @@ class ListenMicrophone:
             print('Cannot find audio device!')
             sys.exit()
         # config for fft
-        self.cutoff_rate = rospy.get_param('~cutoff_rate', self.rate/2)
-        self.f = np.fft.fftfreq(self.length, d=1.0/self.rate)
-        cutoff_f = self.f[self.f < self.cutoff_rate]
-        cutoff_f = cutoff_f[cutoff_f > 0]
-        rospy.loginfo('frequency list of fft:\n{}'.format(cutoff_f))
         self.data = np.zeros((self.length, self.channels))
         self.window = np.hamming(self.length)
         self.stream = self.p.open(format=self.format,
@@ -58,18 +50,6 @@ class ListenMicrophone:
                                   output=False,
                                   input_device_index=self.device_index,
                                   frames_per_buffer=self.length)
-        # config for spectrogram
-        self.hit_volume_thre = rospy.get_param('~hit_volume_threshold', 0)
-        self.visualize_data_length = min(
-            int(self.length * self.cutoff_rate / self.rate), self.length/2)
-        self.time_to_listen = rospy.get_param('~time_to_listen', 0.3)
-        self.queue_size = int(self.time_to_listen * (self.rate / self.length))
-        self.wave_spec_queue = np.zeros((
-            self.queue_size,
-            self.visualize_data_length
-            ))  # remove folding noise
-        self.bridge = CvBridge()
-        self.count_from_last_hitting = 0
 
         # publisher
         self.wave_pub = rospy.Publisher(  # sound wave data, the length is self.length
@@ -80,17 +60,12 @@ class ListenMicrophone:
             '/microphone/sound_spec', Spectrum, queue_size=1)
         self.vol_pub = rospy.Publisher(  # current volume
             '/microphone/volume', Volume, queue_size=1)
-        self.spectrogram_pub = rospy.Publisher(  # spectrogram (always published)
-            '/microphone/spectrogram', Image)
-        self.hit_spectrogram_pub = rospy.Publisher(  # spectrogram published only when big sound is detected
-            '/microphone/hit_spectrogram', Image)
 
         # published msg
         self.wave_msg = Wave()
         self.spec_raw_msg = Spectrum()
         self.spec_msg = Spectrum()
         self.vol_msg = Volume()
-        self.img_msg = Image()
 
     def process(self):
         stamp = rospy.Time.now()
@@ -120,27 +95,11 @@ class ListenMicrophone:
         self.spec_msg.spectrum = spec
         self.spec_msg.header.stamp = stamp
 
-        # calc spectrogram
-        spec_data = np.array(spec[:self.visualize_data_length])  # remove folding noise
-        self.wave_spec_queue = np.concatenate([self.wave_spec_queue, spec_data[None]])
-        self.wave_spec_queue = self.wave_spec_queue[1:]  # add new element to the queue
-        normalized_spec_data = self.wave_spec_queue / np.max(self.wave_spec_queue)
-        jet_img = np.array(cm.jet(1 - normalized_spec_data)[:, :, :3] * 255, np.uint8)
-        jet_img_transposed = jet_img.transpose(1, 0, 2)[::-1]
-        img_msg = self.bridge.cv2_to_imgmsg(jet_img_transposed, 'bgr8')
-
         # publish msg
         self.wave_pub.publish(self.wave_msg)
         self.vol_pub.publish(self.vol_msg)
         self.spectrum_raw_pub.publish(self.spec_raw_msg)
         self.spectrum_pub.publish(self.spec_msg)
-        self.spectrogram_pub.publish(img_msg)
-        if vol > self.hit_volume_thre:
-            self.count_from_last_hitting = 0
-        else:  # publish (save) hit_spectrogram a little after hitting
-            if self.count_from_last_hitting == self.queue_size / 3:
-                self.hit_spectrogram_pub.publish(img_msg)
-        self.count_from_last_hitting += 1
 
     def destruct(self):
         self.stream.stop_stream()
