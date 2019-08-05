@@ -32,5 +32,7 @@ if __name__ == '__main__':
         'sound_classification'), 'scripts', 'mean_noise_sound')
     np.save(file_name, mean_noise_sound)
     rospy.loginfo('Record {} seconds'.format(record_time))
-    rospy.loginfo('Saved {}.npy'.format(file_name))
-    rospy.signal_shutdown('finish')
+    rospy.loginfo('Successfully saved {}.npy'.format(file_name))
+    rospy.logwarn('Please kill this program by pressing Ctrl-C')
+    while True:
+        time.sleep(1)
