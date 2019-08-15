@@ -39,7 +39,11 @@ source ~/audio_ws/devel/setup.bash
 
 1. Set configs of sound classification in `config/sound_classification.yaml` (e.g. microphone name, sampling rate, etc). These parameters must not be changed in the following steps.
 
-  NOTE: You can get list of microphone names (and other device info) by following command.
+  NOTE:Please decide frequency resolution of fft.
+  If you want to listen to the pitch, please check this site.
+  https://tomari.org/main/java/oto.html
+  
+  You can get list of microphone names (and other device info) by following command.
   ```
   import pyaudio
   p = pyaudio.PyAudio()
@@ -47,6 +51,13 @@ source ~/audio_ws/devel/setup.bash
       print(p.get_device_info_by_index(index)['name'])
   ```
 
+  If you use default microphone, please check the rate of the microphone by following command.
+  ```
+  for index in range(p.get_device_count()):
+      if (p.get_device_info_by_index(index)['name']=="default"):
+          print(p.get_device_info_by_index(index)['defaultSampleRate'])
+  ```
+  
 
 2. Record noise sound in `scripts/mean_noise_sound.npy` to calibrate microphone (Spectral Subtraction method). Be quiet during this command.
 ```bash
