@@ -17,6 +17,6 @@
 
   <!-- visualization of sound classification in rqt -->
   <node if="$(arg rqt)" pkg="rqt_gui" type="rqt_gui" name="rqt_gui" args="--perspective-file $(find sound_classification)/config/sound_classification.perspective" />
-  <node if="$(arg rqt)" pkg="usb_cam" type="usb_cam_node" name="usb_cam_node" />
+  <!-- <node if="$(arg rqt)" pkg="usb_cam" type="usb_cam_node" name="usb_cam_node" /> -->
 
 </launch>
