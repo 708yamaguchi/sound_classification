@@ -65,7 +65,7 @@ class ClassifySpectrogramROS:
 
         # subscriber and publisher
         self.hit_sub = rospy.Subscriber(
-            '/microphone/hit_spectrogram', Image, self.hit_cb)
+            '/microphone/hit_spectrogram_subtracted', Image, self.hit_cb)
         self.pub = rospy.Publisher(
             '/object_class_by_image', String, queue_size=1)
 
