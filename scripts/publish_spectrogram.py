@@ -40,6 +40,8 @@ class PublishSpectrogram:
         # publisher
         self.spectrogram_pub = rospy.Publisher(  # spectrogram (always published)
             '/microphone/spectrogram', Image)
+        self.spectrogram_subtracted_pub = rospy.Publisher(  # spectrogram which is subrated by previous noise (always published)
+            '/microphone/spectrogram_subtracted', Image)
         self.hit_spectrogram_pub = rospy.Publisher(  # spectrogram published only when big sound is detected
             '/microphone/hit_spectrogram', Image)
         self.hit_spectrogram_subtracted_pub = rospy.Publisher(  # hit spectrogram which is subtracted by previous noise (e.g. motor)
@@ -71,20 +73,20 @@ class PublishSpectrogram:
         self.img_msg.header.stamp = stamp
         # publish msg
         self.spectrogram_pub.publish(img_msg)
+        # publish hit spectrogram subtracted by previous noise (e.g. motor)
+        wave_spec_queue_subtracted = self.wave_spec_queue - np.mean(self.wave_spec_queue_prev, axis=0)
+        normalized_spec_data = wave_spec_queue_subtracted / np.max(wave_spec_queue_subtracted)
+        jet_img = np.array(cm.jet(1 - normalized_spec_data)[:, :, :3] * 255, np.uint8)
+        jet_img_transposed = jet_img.transpose(1, 0, 2)[::-1]
+        img_msg_subtracted = self.bridge.cv2_to_imgmsg(jet_img_transposed, 'bgr8')
+        self.spectrogram_subtracted_pub.publish(img_msg_subtracted)
         if vol.volume > self.hit_volume_thre:
             self.count_from_last_hitting = 0
             self.wave_spec_queue_for_subtraction = self.wave_spec_queue_prev
         else:  # publish (save) hit_spectrogram a little after hitting
             if self.count_from_last_hitting == self.queue_size / 3:
                 self.hit_spectrogram_pub.publish(img_msg)
-                # publish hit spectrogram subtracted by previous noise (e.g. motor)
-                wave_spec_queue_subtracted = self.wave_spec_queue - np.mean(self.wave_spec_queue_prev, axis=0)
-                normalized_spec_data = wave_spec_queue_subtracted / np.max(wave_spec_queue_subtracted)
-                jet_img = np.array(cm.jet(1 - normalized_spec_data)[:, :, :3] * 255, np.uint8)
-                jet_img_transposed = jet_img.transpose(1, 0, 2)[::-1]
-                img_msg = self.bridge.cv2_to_imgmsg(jet_img_transposed, 'bgr8')
-                self.hit_spectrogram_subtracted_pub.publish(img_msg)
-
+                self.hit_spectrogram_subtracted_pub.publish(img_msg_subtracted)
         self.count_from_last_hitting += 1
 
 

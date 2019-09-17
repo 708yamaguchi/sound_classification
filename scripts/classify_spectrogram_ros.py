@@ -90,9 +90,9 @@ class ClassifySpectrogramROS:
         msg = String()
         msg.data = self.classes[np.argmax(ret)]
         self.pub.publish(msg)
-        rospy.sleep(0.5)
-        msg.data = 'no object'
-        self.pub.publish(msg)
+        # rospy.sleep(0.5)
+        # msg.data = 'no object'
+        # self.pub.publish(msg)
 
 
 if __name__ == '__main__':
