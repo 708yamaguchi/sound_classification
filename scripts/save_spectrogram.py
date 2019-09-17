@@ -31,7 +31,7 @@ class SaveSpectrogram:
 
         # subscribe
         self.hit_spectrogram_sub = rospy.Subscriber(
-            '/microphone/hit_spectrogram', Image, self.hit_spectrogram_cb)
+            '/microphone/hit_spectrogram_subtracted', Image, self.hit_spectrogram_cb)
 
     def hit_spectrogram_cb(self, msg):
         if self.is_first:  # do not save first spectrogram (noisy)
