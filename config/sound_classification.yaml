@@ -2,7 +2,7 @@ microphone:
   # name: default # microphone name
   name: snd_rpi_simple_card # microphone name
   rate: 44100 # sampling rate of microphone
-  length: 512 # the number of sampling data in fft
+  length: 2048 # the number of sampling data in fft
                # length = rate / frequency resolution of fft
 
 publish_spectrogram:
