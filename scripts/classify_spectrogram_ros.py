@@ -90,6 +90,7 @@ class ClassifySpectrogramROS:
             ret = cuda.to_cpu(ret.data)[0]
         msg = String()
         msg.data = self.classes[np.argmax(ret)]
+        print(msg.data)
         self.pub.publish(msg)
         rospy.sleep(0.5)
         msg.data = 'no object'
