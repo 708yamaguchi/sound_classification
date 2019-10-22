@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-
 # classify spectrogram using neural networks
 
 import chainer
@@ -15,7 +14,6 @@ import rospkg
 from sensor_msgs.msg import Image
 from std_msgs.msg import String
 
-
 class ClassifySpectrogramROS:
     def __init__(self):
         rospy.init_node('classify_spectrogram_ros')
@@ -29,9 +27,9 @@ class ClassifySpectrogramROS:
         }
 
         self.gpu = 0
-        device = chainer.cuda.get_device(self.gpu)  # for python2, gpu number is 0
+        #device = chainer.cuda.get_device(self.gpu)  # for python2, gpu number is 0
 
-        print('Device: {}'.format(device))
+        #print('Device: {}'.format(device))
         print('Dtype: {}'.format(chainer.config.dtype))
         print('')
 
@@ -50,8 +48,11 @@ class ClassifySpectrogramROS:
         initmodel = rospy.get_param('~model')
         print('Load model from {}'.format(initmodel))
         chainer.serializers.load_npz(initmodel, self.model)
-        self.model.to_device(device)
-        device.use()
+        if self.gpu >= 0:
+            chainer.backends.cuda.get_device_from_id(self.gpu).use()
+            self.model.to_gpu()
+        #self.model.to_device(device)
+        #device.use()
 
         # Load the mean file
         mean_file_path = osp.join(rospack.get_path('sound_classification'),
