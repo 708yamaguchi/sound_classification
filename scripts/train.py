@@ -73,11 +73,12 @@ def main():
                         'used. If not supplied, the default dtype is used')
     parser.add_argument('--epoch', '-E', type=int, default=10,
                         help='Number of epochs to train')
-    parser.add_argument('--device', '-d', type=str, default='-1',
-                        help='Device specifier. Either ChainerX device '
-                        'specifier or an integer. If non-negative integer, '
-                        'CuPy arrays with specified device id are used. If '
-                        'negative integer, NumPy arrays are used')
+    # parser.add_argument('--device', '-d', type=str, default='-1',
+    #                     help='Device specifier. Either ChainerX device '
+    #                     'specifier or an integer. If non-negative integer, '
+    #                     'CuPy arrays with specified device id are used. If '
+    #                     'negative integer, NumPy arrays are used')
+    parser.add_argument('--gpu', '-g', type=int, default=-1)
     parser.add_argument('--initmodel',
                         help='Initialize the model from given file')
     parser.add_argument('--loaderjob', '-j', type=int,
@@ -98,19 +99,21 @@ def main():
     parser.add_argument('--val_batchsize', '-b', type=int, default=250,
                         help='Validation minibatch size')
     group = parser.add_argument_group('deprecated arguments')
-    group.add_argument('--gpu', '-g', dest='device',
-                       type=int, nargs='?', const=0,
-                       help='GPU ID (negative value indicates CPU)')
+    # group.add_argument('--gpu', '-g', dest='device',
+    #                    type=int, nargs='?', const=0,
+    #                    help='GPU ID (negative value indicates CPU)')
     args = parser.parse_args()
-
+    #print(args)
+    #print("aaa")
     # device = chainer.get_device(args.device)  # for python3
-    device = chainer.cuda.get_device(args.device)  # for python2
+    # device = chainer.cuda.get_device(args.device)  # for python2
+
 
     # Set the dtype if supplied.
     if args.dtype is not None:
         chainer.config.dtype = args.dtype
 
-    print('Device: {}'.format(device))
+    #print('Device: {}'.format(device))
     print('Dtype: {}'.format(chainer.config.dtype))
     print('# Minibatch-size: {}'.format(args.batchsize))
     print('# epoch: {}'.format(args.epoch))
@@ -125,8 +128,11 @@ def main():
     if args.initmodel:
         print('Load model from {}'.format(args.initmodel))
         chainer.serializers.load_npz(args.initmodel, model)
-    model.to_device(device)
-    device.use()
+    #model.to_device(device)
+    if args.gpu >= 0:
+        chainer.backends.cuda.get_device_from_id(args.gpu).use()
+        model.to_gpu()
+    #device.use()
 
     # Load mean value of dataset
     mean = np.array(Image_.open(args.mean), np.float32).transpose(
@@ -150,14 +156,14 @@ def main():
 
     # Set up a trainer
     updater = training.updaters.StandardUpdater(
-        train_iter, optimizer, converter=converter, device=device)
+        train_iter, optimizer, converter=converter, device=args.gpu)
     trainer = training.Trainer(updater, (args.epoch, 'epoch'), args.out)
 
     val_interval = 100, 'iteration'
     log_interval = 100, 'iteration'
 
     trainer.extend(extensions.Evaluator(val_iter, model, converter=converter,
-                                        device=device), trigger=val_interval)
+                                        device=args.gpu), trigger=val_interval)
     trainer.extend(extensions.snapshot_object(
         target=model, filename='model_best.npz'),
         trigger=chainer.training.triggers.MinValueTrigger(

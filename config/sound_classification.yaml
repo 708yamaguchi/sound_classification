@@ -1,6 +1,6 @@
 microphone:
-  name: default # microphone name
-  rate: 44100 # sampling rate of microphone
+  name: ReSpeaker 4 Mic Array # microphone name
+  rate: 16000 # sampling rate of microphone
   length: 512 # the number of sampling data in fft
                # length = rate / frequency resolution of fft
 
