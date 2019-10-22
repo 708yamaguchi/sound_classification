@@ -2,7 +2,8 @@
   <arg name="use_microphone" default="true"/> <!-- publish topics from microphone -->
   <arg name="classification" default="true"/> <!-- online sound classification on ROS -->
   <arg name="publish_spectrogram" default="true"/> <!-- publish spectrogram from spectrum -->
-  <arg name="rqt" default="true"/> <!-- visualize spectrogram, object class and camera image on rqt -->
+  <!-- <arg name="rqt" default="true"/> -->
+  <!-- visualize spectrogram, object class and camera image on rqt -->
 
   <!-- load configs of sound_classification -->
   <rosparam command="load" file="$(find sound_classification)/config/sound_classification.yaml" subst_value="true" />
@@ -17,7 +18,6 @@
   <node if="$(arg classification)" pkg="sound_classification" type="classify_spectrogram_ros.py" name="classify_spectrogram_ros" output="screen" />
 
   <!-- visualization of sound classification in rqt -->
-  <node if="$(arg rqt)" pkg="rqt_gui" type="rqt_gui" name="rqt_gui" args="--perspective-file $(find sound_classification)/config/sound_classification.perspective" />
-  <!-- <node if="$(arg rqt)" pkg="usb_cam" type="usb_cam_node" name="usb_cam_node" /> -->
 
+  <!-- <node if="$(arg rqt)" pkg="usb_cam" type="usb_cam_node" name="usb_cam_node" /> -->
 </launch>
