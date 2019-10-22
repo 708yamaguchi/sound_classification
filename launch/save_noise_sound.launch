@@ -1,11 +1,11 @@
 <launch>
   <arg name="classification" default="false"/>
-  <arg name="rqt" default="false"/>
+  <!-- <arg name="rqt" default="false"/> -->
 
   <!-- publish sound topics from microphone -->
   <include file="$(find sound_classification)/launch/microphone.launch" >
     <arg name="classification" value="$(arg classification)"/>
-    <arg name="rqt" value="$(arg rqt)"/>
+    <!-- <arg name="rqt" value="$(arg rqt)"/> -->
   </include>
 
   <!-- save noise sound for 3 seconds -->
