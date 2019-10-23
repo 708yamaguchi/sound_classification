@@ -29,8 +29,8 @@ class PublishSpectrogram:
         self.hit_volume_thre = rospy.get_param('/publish_spectrogram/hit_volume_threshold', 0)
         self.visualize_data_length = min(
             int(self.length * self.cutoff_rate / self.rate), self.length/2)
-        #self.time_to_listen = rospy.get_param('/publish_spectrogram/time_to_listen', 0.3)
-        self.time_to_listen = 10
+        self.time_to_listen = rospy.get_param('/publish_spectrogram/time_to_listen', 0.3)
+        #self.time_to_listen = 1
         self.queue_size = int(self.time_to_listen * (self.rate / self.length))
         self.wave_spec_queue = np.zeros((
             self.queue_size,
@@ -44,6 +44,8 @@ class PublishSpectrogram:
             '/microphone/spectrogram', Image)
         self.hit_spectrogram_pub = rospy.Publisher(  # spectrogram published only when big sound is detected
             '/microphone/hit_spectrogram', Image)
+        self.record_spectrogram_pub = rospy.Publisher(
+            '/microphone/record_spectrogram', Image)
 
         # subscriber
         wave_sub = message_filters.Subscriber('/microphone/wave', Wave)
@@ -71,14 +73,14 @@ class PublishSpectrogram:
         # publish msg
         self.spectrogram_pub.publish(img_msg)
         if (rospy.Time.now() - self.now).to_sec() > 10.0:
-            self.hit_spectrogram_pub.publish(img_msg)
+            self.record_spectrogram_pub.publish(img_msg)
             self.now = rospy.Time.now()
-        #if vol.volume > self.hit_volume_thre:
-        #    self.count_from_last_hitting = 0
-        #else:  # publish (save) hit_spectrogram a little after hitting
-        #    if self.count_from_last_hitting == self.queue_size / 3:
-        #        self.hit_spectrogram_pub.publish(img_msg)
-        #self.count_from_last_hitting += 1
+        if vol.volume > self.hit_volume_thre:
+           self.count_from_last_hitting = 0
+        else:  # publish (save) hit_spectrogram a little after hitting
+           if self.count_from_last_hitting == self.queue_size / 3:
+               self.hit_spectrogram_pub.publish(img_msg)
+        self.count_from_last_hitting += 1
 
 
 if __name__ == '__main__':
