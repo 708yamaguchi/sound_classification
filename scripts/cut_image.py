@@ -53,7 +53,7 @@ if __name__=="__main__":
     input_file = args[2]
     output_file = args[3]
 
-    path = os.path.join("../train_data/original_spectrogram", label)
+    path = os.path.join("/home/nakaotatsuya/audio_ws/src/sound_classification/train_data/original_spectrogram", label)
     read = cv2.imread(os.path.join(path, input_file))
     window_name="input window"
     cv2.imshow(window_name, read)

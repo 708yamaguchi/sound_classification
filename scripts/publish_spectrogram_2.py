@@ -12,7 +12,7 @@ from sensor_msgs.msg import Image
 
 import rospy
 
-class PublishSpectrogram:
+class PublishSpectrogram_2:
 
     def __init__(self):
         # init rospy node
@@ -29,9 +29,10 @@ class PublishSpectrogram:
         self.hit_volume_thre = rospy.get_param('/publish_spectrogram/hit_volume_threshold', 0)
         self.visualize_data_length = min(
             int(self.length * self.cutoff_rate / self.rate), self.length/2)
-        self.time_to_listen = rospy.get_param('/publish_spectrogram/time_to_listen', 0.3)
-        #self.time_to_listen = 1
-        self.queue_size = int(self.time_to_listen * (self.rate / self.length))
+        #self.time_to_listen = rospy.get_param('/publish_spectrogram/time_to_listen', 0.3)
+        self.time_to_record = 10
+        #self.queue_size = int(self.time_to_listen * (self.rate / self.length))
+        self.queue_size = int(self.time_to_record * (self.rate / self.length))
         self.wave_spec_queue = np.zeros((
             self.queue_size,
             self.visualize_data_length
@@ -42,8 +43,8 @@ class PublishSpectrogram:
         # publisher
         self.spectrogram_pub = rospy.Publisher(  # spectrogram (always published)
             '/microphone/spectrogram', Image)
-        self.hit_spectrogram_pub = rospy.Publisher(  # spectrogram published only when big sound is detected
-            '/microphone/hit_spectrogram', Image)
+        # self.hit_spectrogram_pub = rospy.Publisher(  # spectrogram published only when big sound is detected
+        #     '/microphone/hit_spectrogram', Image)
         self.record_spectrogram_pub = rospy.Publisher(
             '/microphone/record_spectrogram', Image)
 
@@ -72,17 +73,17 @@ class PublishSpectrogram:
         self.img_msg.header.stamp = stamp
         # publish msg
         self.spectrogram_pub.publish(img_msg)
-        if (rospy.Time.now() - self.now).to_sec() > 10.0:
+        if (rospy.Time.now() - self.now).to_sec() > self.time_to_record:
             self.record_spectrogram_pub.publish(img_msg)
             self.now = rospy.Time.now()
-        if vol.volume > self.hit_volume_thre:
-           self.count_from_last_hitting = 0
-        else:  # publish (save) hit_spectrogram a little after hitting
-           if self.count_from_last_hitting == self.queue_size / 3:
-               self.hit_spectrogram_pub.publish(img_msg)
-        self.count_from_last_hitting += 1
+        # if vol.volume > self.hit_volume_thre:
+        #    self.count_from_last_hitting = 0
+        # else:  # publish (save) hit_spectrogram a little after hitting
+        #    if self.count_from_last_hitting == self.queue_size / 3:
+        #        self.hit_spectrogram_pub.publish(img_msg)
+        # self.count_from_last_hitting += 1
 
 
 if __name__ == '__main__':
-    ps = PublishSpectrogram()
+    ps_2 = PublishSpectrogram_2()
     rospy.spin()
