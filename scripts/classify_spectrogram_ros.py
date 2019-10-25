@@ -13,6 +13,7 @@ import rospy
 import rospkg
 from sensor_msgs.msg import Image
 from std_msgs.msg import String
+from sound_classification.msg import Probability
 
 class ClassifySpectrogramROS:
     def __init__(self):
