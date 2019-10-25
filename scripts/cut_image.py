@@ -55,6 +55,7 @@ if __name__=="__main__":
 
     path = os.path.join("/home/nakaotatsuya/audio_ws/src/sound_classification/train_data/original_spectrogram", label)
     read = cv2.imread(os.path.join(path, input_file))
+    print(read.shape)
     window_name="input window"
     cv2.imshow(window_name, read)
     mouseData = mouseParam(window_name)
@@ -66,11 +67,12 @@ if __name__=="__main__":
         if mouseData.getEvent() == cv2.EVENT_LBUTTONDOWN:
             print(mouseData.getPos())
             cut_start = int(mouseData.getX())
+            cut_end = cut_start + 25
             #print(cut_start)
 
-        if mouseData.getEvent() == cv2.EVENT_LBUTTONUP:
-            cut_end = int(mouseData.getX())
-            #print(cut_end)
+        # if mouseData.getEvent() == cv2.EVENT_LBUTTONUP:
+        #     cut_end = int(mouseData.getX())
+        #     #print(cut_end)
 
         elif mouseData.getEvent() == cv2.EVENT_RBUTTONDOWN:
             break
