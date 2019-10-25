@@ -14,6 +14,8 @@ import rospkg
 from sensor_msgs.msg import Image
 from std_msgs.msg import String
 from sound_classification.msg import Probability
+import math
+
 
 class ClassifySpectrogramROS:
     def __init__(self):
@@ -75,6 +77,18 @@ class ClassifySpectrogramROS:
 
         self.bridge = CvBridge()
 
+    def sigmoid(self, x):
+        e = math.e
+        s = 1 / (1 + e**-x)
+        return s
+
+    def softmax(self, a):
+        c = np.max(a)
+        exp_a = np.exp(a-c)
+        sum_exp_a = np.exp(exp_a)
+        y = exp_a / sum_exp_a
+        return y
+
     def hit_cb(self, msg):
         cv_image = self.bridge.imgmsg_to_cv2(
             msg, desired_encoding='passthrough')
@@ -91,12 +105,14 @@ class ClassifySpectrogramROS:
             x_data = chainer.Variable(x_data)
             ret = self.model.forward_for_test(x_data)
             ret = cuda.to_cpu(ret.data)[0]
-            print(ret)
-            self.pub2.publish(ret)
+            #print(type(ret))
+            ret = self.softmax(ret)
+            msg2 = Probability()
+            msg2.probability = ret
+            self.pub2.publish(msg2)
         msg = String()
         msg.data = self.classes[np.argmax(ret)]
         print(msg.data)
-        self.pub.publish(msg)
         rospy.sleep(0.5)
         msg.data = 'no object'
         self.pub.publish(msg)
