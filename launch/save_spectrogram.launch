@@ -19,7 +19,7 @@
   <!--   <param name="target_class" value="$(arg target_class)"/> -->
   <!-- </node> -->
 
-  <node pkg="sound_classification" name="save_spectrogram" type="save_spectrogram_2.py" output="screen">
+  <node pkg="sound_classification" name="save_spectrogram" type="save_spectrogram.py" output="screen">
     <param name="target_class" value="$(arg target_class)"/>
   </node>
 
