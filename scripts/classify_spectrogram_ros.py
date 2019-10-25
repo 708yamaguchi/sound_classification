@@ -69,6 +69,8 @@ class ClassifySpectrogramROS:
             '/microphone/hit_spectrogram', Image, self.hit_cb)
         self.pub = rospy.Publisher(
             '/object_class_by_image', String, queue_size=1)
+        self.pub2 = rospy.Publisher(
+            "/probability", Probability, queue_size=1)
 
         self.bridge = CvBridge()
 
@@ -88,6 +90,8 @@ class ClassifySpectrogramROS:
             x_data = chainer.Variable(x_data)
             ret = self.model.forward_for_test(x_data)
             ret = cuda.to_cpu(ret.data)[0]
+            print(ret)
+            self.pub2.publish(ret)
         msg = String()
         msg.data = self.classes[np.argmax(ret)]
         print(msg.data)
