@@ -52,6 +52,7 @@ add_message_files(
   Volume.msg
   Wave.msg
   Probability.msg
+  Cepstrum.msg
 )
 
 ## Generate services in the 'srv' folder

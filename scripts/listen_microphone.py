@@ -9,7 +9,7 @@ import pyaudio
 import rospkg
 import rospy
 import sys
-
+import pylab
 
 class ListenMicrophone:
 
@@ -85,6 +85,20 @@ class ListenMicrophone:
 
         # calc spectrum
         spec = np.abs(np.fft.fft(wave*self.window))
+        
+        #spec_log = 20 * np.log10(spec)
+        #cps = np.real(np.fft.ifft(spec_log))
+        #print(len(cps))
+
+        #centor = len(wave)/2
+        #cuttime = 0.4
+        #t = np.arange(0.0, len(wave)/self.rate, 1.0/self.rate)
+        #wavedata = wave[int(centor - cuttime/2*self.rate) : int(centor + cuttime/2*self.rate)]
+        #time = t[int(centor - cuttime/2*self.rate) : int(centor + cuttime/2*self.rate)]
+        #quefrency = time
+        #n=2048
+        #pylab.plot(quefrency[0:n/2]*1000 , cps[0:n/2])
+        
         self.spec_raw_msg.spectrum = spec
         self.spec_raw_msg.header.stamp = stamp
         try:
