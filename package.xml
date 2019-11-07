@@ -13,4 +13,8 @@
   <run_depend>message_runtime</run_depend>
   <run_depend>rospy</run_depend>
   <run_depend>sensor_msgs</run_depend>
+  <!-- apt run depend -->
+  <run_depend>python-pyaudio</run_depend>
+  <!-- pip run depend -->
+  <run_depend>imgaug-pip</run_depend>
 </package>
