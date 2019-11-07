@@ -56,6 +56,7 @@ seq = iaa.Sequential([
 rospack = rospkg.RosPack()
 
 
+# Split dataset into train data and test data. The rate is given by --rate.
 def split():
     parser = argparse.ArgumentParser()
     parser.add_argument('-r', '--rate', default='0.8')  # train:test = 0.8:0.2
