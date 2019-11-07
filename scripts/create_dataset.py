@@ -21,8 +21,8 @@
 #                               |- 002.png
 #                               |- ...
 # dataset -- n_class.txt
-#         |- train_images.png  # necessary for chainer
-#         |- test_images.png  # necessary for chainer
+#         |- train_images.txt  # necessary for chainer
+#         |- test_images.txt  # necessary for chainer
 #         |- train_(class)000*.png
 #         |- ...
 #         |- test_(class)000*.png
