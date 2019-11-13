@@ -39,9 +39,9 @@ class PublishSpectrogram:
 
         # publisher
         self.spectrogram_pub = rospy.Publisher(  # spectrogram (always published)
-            '/microphone/spectrogram', Image)
+            '/microphone/spectrogram', Image, queue_size=10)
         self.hit_spectrogram_pub = rospy.Publisher(  # spectrogram published only when big sound is detected
-            '/microphone/hit_spectrogram', Image)
+            '/microphone/hit_spectrogram', Image, queue_size=10)
 
         # subscriber
         wave_sub = message_filters.Subscriber('/microphone/wave', Wave)

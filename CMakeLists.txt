@@ -51,8 +51,8 @@ add_message_files(
   Spectrum.msg
   Volume.msg
   Wave.msg
-  Probability.msg
-  Cepstrum.msg
+  #Probability.msg
+  #Cepstrum.msg
 )
 
 ## Generate services in the 'srv' folder

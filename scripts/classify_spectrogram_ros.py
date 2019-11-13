@@ -13,7 +13,7 @@ import rospy
 import rospkg
 from sensor_msgs.msg import Image
 from std_msgs.msg import String
-from sound_classification.msg import Probability
+#from sound_classification.msg import Probability
 import math
 
 
@@ -72,8 +72,8 @@ class ClassifySpectrogramROS:
             '/microphone/hit_spectrogram', Image, self.hit_cb)
         self.pub = rospy.Publisher(
             '/object_class_by_image', String, queue_size=1)
-        self.pub2 = rospy.Publisher(
-            "/probability", Probability, queue_size=1)
+        #self.pub2 = rospy.Publisher(
+        #    "/probability", Probability, queue_size=1)
 
         self.bridge = CvBridge()
 
@@ -107,9 +107,9 @@ class ClassifySpectrogramROS:
             ret = cuda.to_cpu(ret.data)[0]
             #print(type(ret))
             ret = self.softmax(ret)
-            msg2 = Probability()
-            msg2.probability = ret
-            self.pub2.publish(msg2)
+            #msg2 = Probability()
+            #msg2.probability = ret
+            #self.pub2.publish(msg2)
         msg = String()
         msg.data = self.classes[np.argmax(ret)]
         print(msg.data)
