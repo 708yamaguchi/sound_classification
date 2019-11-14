@@ -44,4 +44,5 @@ class NIN(chainer.Chain):
         h = F.max_pooling_2d(F.relu(self.mlpconv3(h)), 3, stride=2)
         h = self.mlpconv4(F.dropout(h))
         h = F.reshape(F.average_pooling_2d(h, 6), (len(x), self.n_class))
+        h = F.softmax(h)
         return h
