@@ -21,8 +21,8 @@
 #                               |- 002.png
 #                               |- ...
 # dataset -- n_class.txt
-#         |- train_images.png  # necessary for chainer
-#         |- test_images.png  # necessary for chainer
+#         |- train_images.txt  # necessary for chainer
+#         |- test_images.txt  # necessary for chainer
 #         |- train_(class)000*.png
 #         |- ...
 #         |- test_(class)000*.png
@@ -56,6 +56,7 @@ seq = iaa.Sequential([
 rospack = rospkg.RosPack()
 
 
+# Split dataset into train data and test data. The rate is given by --rate.
 def split():
     parser = argparse.ArgumentParser()
     parser.add_argument('-r', '--rate', default='0.8')  # train:test = 0.8:0.2

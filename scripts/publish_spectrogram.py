@@ -20,7 +20,6 @@ class PublishSpectrogram:
         self.length = rospy.get_param('/microphone/length', 512)  # length relates hamming window range
         self.rate = rospy.get_param('/microphone/rate', 44100)
         self.cutoff_rate = rospy.get_param('/publish_spectrogram/cutoff_rate', self.rate/2)
-        self.cutoff_rate = rospy.get_param('/publish_spectrogram/cutoff_rate', self.rate/2)
         self.f = np.fft.fftfreq(self.length, d=1.0/self.rate)
         cutoff_f = self.f[self.f < self.cutoff_rate]
         cutoff_f = cutoff_f[cutoff_f > 0]

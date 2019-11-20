@@ -20,6 +20,7 @@ def visualize():
     rospack = rospkg.RosPack()
     data_dir = osp.join(rospack.get_path('sound_classification'),
                         'train_data', 'dataset')
+    print("Press 'q' to exit. Press any other keys to show next image.")
     for f in os.listdir(data_dir):
         if not f.startswith(args.type):
             continue
