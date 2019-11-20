@@ -15,7 +15,7 @@
 
   <node if="$(arg publish_spectrogram)" pkg="sound_classification" type="publish_spectrogram.py" name="publish_spectrogram" output="screen" respawn="true" />
 
-  <node if="$(arg publish_spectrogram)" pkg="sound_classification" type="publish_spectrogram_2.py" name="publish_spectrogram_2" output="screen" respawn="true" />
+  <!-- <node if="$(arg publish_spectrogram)" pkg="sound_classification" type="publish_spectrogram_2.py" name="publish_spectrogram_2" output="screen" respawn="true" /> -->
 
   <!-- online sound classification -->
   <node if="$(arg classification)" pkg="sound_classification" type="classify_spectrogram_ros.py" name="classify_spectrogram_ros" output="screen" />

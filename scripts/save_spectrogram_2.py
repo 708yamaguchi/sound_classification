@@ -23,7 +23,7 @@ class SaveSpectrogram:
         self.save_dir = osp.join(rospack.get_path(
             'sound_classification'), 'train_data')
         self.image_save_dir = osp.join(
-            self.save_dir, 'original_spectrogram', self.target_class)
+            self.save_dir, 'long_spectrogram', self.target_class)
         if not os.path.exists(self.image_save_dir):
             os.makedirs(self.image_save_dir)
         self.bridge = CvBridge()

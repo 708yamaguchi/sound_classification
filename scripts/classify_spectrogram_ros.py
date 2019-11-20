@@ -66,6 +66,7 @@ class ClassifySpectrogramROS:
         # Set up an optimizer
         optimizer = chainer.optimizers.MomentumSGD(lr=0.01, momentum=0.9)
         optimizer.setup(self.model)
+        #optimizer.add_hook(chainer.optimizer.WeightDecay(5e-4))
 
         # subscriber and publisher
         self.hit_sub = rospy.Subscriber(
@@ -85,7 +86,7 @@ class ClassifySpectrogramROS:
     def softmax(self, a):
         c = np.max(a)
         exp_a = np.exp(a-c)
-        sum_exp_a = np.exp(exp_a)
+        sum_exp_a = np.sum(exp_a)
         y = exp_a / sum_exp_a
         return y
 
@@ -102,19 +103,33 @@ class ClassifySpectrogramROS:
             x_data *= (1.0 / 255.0)  # Scale to [0, 1.0]
             # fowarding once
             x_data = cuda.to_gpu(x_data[None], device=self.gpu)
+            #print(np.shape(x_data))
             x_data = chainer.Variable(x_data)
-            ret = self.model.forward_for_test(x_data)
+            #print(np.shape(x_data))
+            #t_data = np.array([1,0,0,0,0,0,0,0,0,0])
+            #t_data = cuda.to_gpu(t_data[None], device=self.gpu)
+            #print(t_data.ndim)
+            #t_data = chainer.Variable(t_data)
+            ret=self.model.forward_for_test(x_data)
+            #print(ret.ndim)
             ret = cuda.to_cpu(ret.data)[0]
+            #print(ret.ndim)
             #print(type(ret))
             ret = self.softmax(ret)
+            #print(ret)
+            for i in range(len(ret)):
+                print(self.classes[i])
+                print(ret[i])
             #msg2 = Probability()
             #msg2.probability = ret
             #self.pub2.publish(msg2)
         msg = String()
         msg.data = self.classes[np.argmax(ret)]
+        print("-------")
         print(msg.data)
+        print("-------")
         rospy.sleep(0.5)
-        msg.data = 'no object'
+        #msg.data = 'no object'
         self.pub.publish(msg)
 
 
