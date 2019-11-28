@@ -14,6 +14,7 @@ import rospkg
 from sensor_msgs.msg import Image
 from std_msgs.msg import String
 #from sound_classification.msg import Probability
+from sound_classification.msg import Imagestring
 import math
 
 
@@ -73,6 +74,8 @@ class ClassifySpectrogramROS:
             '/microphone/hit_spectrogram', Image, self.hit_cb)
         self.pub = rospy.Publisher(
             '/object_class_by_image', String, queue_size=1)
+        self.pub2 = rospy.Publisher(
+            "/object", Imagestring, queue_size=1)
         #self.pub2 = rospy.Publisher(
         #    "/probability", Probability, queue_size=1)
 
@@ -93,6 +96,7 @@ class ClassifySpectrogramROS:
     def hit_cb(self, msg):
         cv_image = self.bridge.imgmsg_to_cv2(
             msg, desired_encoding='passthrough')
+        
         with chainer.using_config('train', False), \
              chainer.no_backprop_mode():
             x_data = np.array(Image_.fromarray(cv_image).resize((256, 256))).astype(np.float32)
@@ -115,22 +119,45 @@ class ClassifySpectrogramROS:
             ret = cuda.to_cpu(ret.data)[0]
             #print(ret.ndim)
             #print(type(ret))
-            ret = self.softmax(ret)
+            #ret = self.softmax(ret)
             #print(ret)
+            #get_msg = String()
             for i in range(len(ret)):
                 print(self.classes[i])
                 print(ret[i])
+                
             #msg2 = Probability()
             #msg2.probability = ret
             #self.pub2.publish(msg2)
-        msg = String()
-        msg.data = self.classes[np.argmax(ret)]
+        msg3 = Imagestring()
+        msg3.header = msg.header
+        msg3.height = msg.height
+        msg3.width = msg.width
+        msg3.encoding = msg.encoding
+        msg3.is_bigendian = msg.is_bigendian
+        msg3.step = msg.step
+        msg3.data = msg.data
+
+        msg2 = String()
+        if np.max(ret) > 0.9:
+            msg2.data = self.classes[np.argmax(ret)]
+            msg3.data2 = self.classes[np.argmax(ret)]
+        else:
+            msg2.data = "unknown"
+            msg3.data2 = "unknown"
+
+        if msg2.data == "robotvoice":
+            if np.max(ret) > 0.99:
+                msg2.data = "robotvoice"
+            else:
+                msg2.data = "unknown"
         print("-------")
-        print(msg.data)
+        print(msg2.data)
         print("-------")
         rospy.sleep(0.5)
         #msg.data = 'no object'
-        self.pub.publish(msg)
+        self.pub.publish(msg2)
+        self.pub2.publish(msg3)
 
 
 if __name__ == '__main__':

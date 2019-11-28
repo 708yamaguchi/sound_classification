@@ -51,6 +51,7 @@ add_message_files(
   Spectrum.msg
   Volume.msg
   Wave.msg
+  Imagestring.msg
   #Probability.msg
   #Cepstrum.msg
 )

@@ -36,7 +36,7 @@ class NIN(chainer.Chain):
         loss = F.softmax_cross_entropy(h, t)
 
         chainer.report({'loss': loss, 'accuracy': F.accuracy(h, t)}, self)
-        return h, loss
+        return loss
 
     def forward_for_test(self, x):
         h = F.max_pooling_2d(F.relu(self.mlpconv1(x)), 3, stride=2)
