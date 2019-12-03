@@ -39,9 +39,10 @@ class ClassifySpectrogramROS:
 
         # Initialize the model to train
         rospack = rospkg.RosPack()
+        data = rospy.get_param("~train_data", 'train_data')
         n_class_file = osp.join(
             rospack.get_path('sound_classification'),
-            'train_data', 'dataset', 'n_class.txt')
+            data, 'dataset', 'n_class.txt')
         n_class = 0
         self.classes = []
         with open(n_class_file, mode='r') as f:
@@ -60,7 +61,7 @@ class ClassifySpectrogramROS:
 
         # Load the mean file
         mean_file_path = osp.join(rospack.get_path('sound_classification'),
-                                  'train_data', 'dataset', 'mean_of_dataset.png')
+                                  data, 'dataset', 'mean_of_dataset.png')
         self.mean = np.array(Image_.open(mean_file_path), np.float32).transpose(
             (2, 0, 1))  # (256,256,3) -> (3,256,256), rgb
 
@@ -149,8 +150,10 @@ class ClassifySpectrogramROS:
         if msg2.data == "robotvoice":
             if np.max(ret) > 0.99:
                 msg2.data = "robotvoice"
+                msg3.data2 = "robotvoice"
             else:
                 msg2.data = "unknown"
+                msg3.data2 = "unknown"
         print("-------")
         print(msg2.data)
         print("-------")

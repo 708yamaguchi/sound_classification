@@ -2,11 +2,14 @@
   <arg name="use_microphone" default="true"/> <!-- publish topics from microphone -->
   <arg name="classification" default="true"/> <!-- online sound classification on ROS -->
   <arg name="publish_spectrogram" default="true"/> <!-- publish spectrogram from spectrum -->
+  <arg name="train_data" default="train_data" />
   <!-- <arg name="rqt" default="true"/> -->
   <!-- visualize spectrogram, object class and camera image on rqt -->
 
   <!-- load configs of sound_classification -->
-  <rosparam command="load" file="$(find sound_classification)/config/sound_classification.yaml" subst_value="true" />
+  <!-- <rosparam command="load" file="$(find sound_classification)/config/sound_classification.yaml" subst_value="true" /> -->
+
+  <rosparam command="load" file="$(find sound_classification)/config/sound_classification_grasp.yaml" subst_value="true" />
 
   <!-- publish wave, spectrum and volume topics from microphone -->
   <!-- <node if="$(arg use_microphone)" pkg="sound_classification" type="listen_microphone.py" name="listen_microphone" output="screen" respawn="true" /> -->
@@ -18,7 +21,9 @@
   <!-- <node if="$(arg publish_spectrogram)" pkg="sound_classification" type="publish_spectrogram_2.py" name="publish_spectrogram_2" output="screen" respawn="true" /> -->
 
   <!-- online sound classification -->
-  <node if="$(arg classification)" pkg="sound_classification" type="classify_spectrogram_ros.py" name="classify_spectrogram_ros" output="screen" />
+  <node if="$(arg classification)" pkg="sound_classification" type="classify_spectrogram_ros.py" name="classify_spectrogram_ros" output="screen">
+     <param name="train_data" value="$(arg train_data)"/>
+  </node>
 
   <!-- visualization of sound classification in rqt -->
 
