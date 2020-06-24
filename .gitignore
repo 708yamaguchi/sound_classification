@@ -1,4 +1,7 @@
 *~
 *pyc
 result
+result_grasp
 dataset
+/train_data_grasp
+/config/*grasp.yaml
