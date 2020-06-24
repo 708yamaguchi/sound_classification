@@ -8,7 +8,7 @@ If classification result is not shown in rqt, set `hit_volume_threshold` in `con
 ```
 mkdir -p ~/audio_ws/src
 cd ~/audio_ws/src
-git clone https://github.com/708yamaguchi/sound_classification.git
+git clone https://github.com/nakaotatsuya/sound_classification.git
 cd ../
 catkin build
 source ~/audio_ws/devel/setup.bash
@@ -31,7 +31,7 @@ roslaunch sound_classification microphone.launch         # classification on ROS
 ```
 mkdir -p ~/audio_ws/src
 cd ~/audio_ws/src
-git clone https://github.com/708yamaguchi/sound_classification.git
+git clone https://github.com/nakaotatsuya/sound_classification.git
 cd ../
 catkin build
 source ~/audio_ws/devel/setup.bash
