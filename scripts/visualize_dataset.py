@@ -22,7 +22,7 @@ def visualize():
                         'train_data', 'dataset')
     print("Press 'q' to exit. Press any other keys to show next image.")
     for f in os.listdir(data_dir):
-        if not f.startswith(args.type):
+        if not f.startswith(args.type) or f.endswith('txt'):
             continue
         img = np.array(Image_.open(osp.join(data_dir, f)))
         img = img[:, :, [2, 1, 0]]  # bgr -> rgb
