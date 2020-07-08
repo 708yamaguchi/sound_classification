@@ -147,8 +147,11 @@ def main():
     val = PreprocessedDataset(val_labels, False)
 
     model = load_model(args.model, train.n_class)
-    model.to_device(device)
-    device.use()
+    if hasattr(model, 'to_device'):
+        model.to_device(device)
+        device.use()
+    else:
+        model.to_gpu(device)
 
     # These iterators load the images with subprocesses running in parallel
     # to the training/validation.
