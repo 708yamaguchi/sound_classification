@@ -25,7 +25,8 @@
     <param name="use_sim_time" value="true" />
     <node name="rosbag_play"
           pkg="rosbag" type="play"
-          args="$(arg filename) --clock --pause"/>
+          args="$(arg filename) --clock --pause"
+          output="screen" />
   </group>
   <group unless="$(arg use_rosbag)" >
     <node name="audio_capture" pkg="audio_capture" type="audio_capture"
