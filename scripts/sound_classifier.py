@@ -54,7 +54,10 @@ class SoundClassifier(ConnectionBasedTransport):
         else:
             rospy.logerr('Unsupported ~model_name: {0}'
                          .format(self.model_name))
-        model_file = osp.join(self.dataset.root, 'result', self.model_name, 'model_best.npz')
+        model_file = rospy.get_param(
+            '~model_file',
+            osp.join(self.dataset.root, 'result',
+                     self.model_name, 'model_best.npz'))
         S.load_npz(model_file, self.model)
         if self.gpu != -1:
             self.model.to_gpu(self.gpu)
