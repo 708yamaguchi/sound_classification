@@ -1,0 +1,9 @@
+<launch>
+  <!-- <machine name="hsr043" address="hsr043" env-loader="/home/demo/audio_ws/devel/env.sh" user="demo" password="demo" /> -->
+  
+  <!-- load configs of sound_classification -->
+  <rosparam command="load" file="$(find sound_classification)/config/sound_classification.yaml" subst_value="true" />
+
+  <!-- publish wave, spectrogram and volume topics from microphone -->
+  <node pkg="sound_classification" type="listen_microphone.py" name="listen_microphone" output="screen" respawn="true" />
+</launch>

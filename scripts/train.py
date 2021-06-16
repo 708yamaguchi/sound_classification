@@ -179,7 +179,7 @@ def main():
     log_interval = 10, 'iteration'
 
     trainer.extend(extensions.Evaluator(val_iter, model, converter=converter,
-                                        device=device), trigger=val_interval)
+                                        device=args.gpu), trigger=val_interval)
     trainer.extend(extensions.snapshot_object(
         target=model, filename='model_best.npz'),
         trigger=chainer.training.triggers.MinValueTrigger(
