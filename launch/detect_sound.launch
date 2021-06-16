@@ -3,25 +3,28 @@
   <arg name="use_rosbag" default="false" />
   <arg name="filename" default="/" />
   <arg name="use_microphone" default="true" />
-  <arg name="gui" default="true" />
-  <arg name="save_data_rate" default="10" />
+  <arg name="gui" default="true"/>
+  <arg name="threshold" default="0.5"/>
+  <arg name="hsr" default="false" />
   <arg name="audio_topic" default="/audio" />
-  <arg name="n_channel" default="8" />
 
   <include file="$(find sound_classification)/launch/audio_to_spectrogram.launch" >
     <arg name="use_rosbag" value="$(arg use_rosbag)" />
     <arg name="filename" value="$(arg filename)" />
     <arg name="use_microphone" value="$(arg use_microphone)" />
     <arg name="gui" value="$(arg gui)" />
-    <arg name="n_channel" value="$(arg n_channel)" />
+    <arg name="threshold" value="$(arg threshold)" />
+    <arg name="hsr" value="$(arg hsr)" />
     <arg name="audio_topic" value="$(arg audio_topic)" />
   </include>
 
-  <!-- Collect noise spectrogram -->
-  <node pkg="sound_classification" type="noise_saver.py" name="noise_saver" output="screen">
-    <remap from="~raw_spectrogram" to="/spectrum_to_spectrogram/spectrogram" />
+  <!-- Detect sound based on pixel value sum (nearly equals to volume) -->
+  <node pkg="sound_classification" type="sound_detector_volume.py"
+        name="sound_detector_volume" respawn="true" output="screen">
+    <remap from="~input" to="/preprocess_gray_image/output" />
     <rosparam subst_value="true">
-      save_data_rate: $(arg save_data_rate) <!-- related to spectrogram_period -->
+      power_per_pixel_threshold: $(arg threshold)
+      lazy: false
     </rosparam>
   </node>
 

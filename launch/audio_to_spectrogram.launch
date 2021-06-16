@@ -1,10 +1,10 @@
 <launch>
   <!-- Your microphone parameters -->
   <!-- Please overwrite these values at the first time -->
-  <arg name="device" default="hw:0,0" />
-  <arg name="n_channel" default="2" />
+  <arg name="device" default="plughw:1,0" />
+  <arg name="n_channel" default="8" />
   <arg name="bitdepth" default="16" />
-  <arg name="mic_sampling_rate" default="44100" />
+  <arg name="mic_sampling_rate" default="16000" />
 
   <arg name="use_rosbag" default="false" />
   <arg name="filename" default="/" />
@@ -16,6 +16,9 @@
 
   <arg name="gui" default="false" />
   <arg name="threshold" default="0.5" />
+  <arg name="hsr" default="false" />
+
+  <arg name="audio_topic" default="/audio" />
 
   <!-- Start: Data conversion -->
   <!-- audio -> spectrum -> mono spectrogram -> preprocessed mono spectrogram -->
@@ -28,24 +31,29 @@
           args="$(arg filename) --clock --pause"
           output="screen" />
   </group>
-  <group unless="$(arg use_rosbag)" >
-    <node name="audio_capture" pkg="audio_capture" type="audio_capture"
-          if="$(arg use_microphone)" respawn="true">
-      <rosparam subst_value="true">
-        format: wave
-        device: $(arg device)
-        channels: $(arg n_channel)
-        depth: $(arg bitdepth)
-        sample_rate: $(arg mic_sampling_rate)
-      </rosparam>
-    </node>
-  </group>
+  
+  <!-- <group unless="$(arg use_rosbag)" > -->
+  <!--   <group unless="$(arg hsr)" > -->
+  <!--     <node name="audio_capture" pkg="audio_capture" type="audio_capture" -->
+  <!--           if="$(arg use_microphone)" respawn="true"> -->
+  <!--       <rosparam subst_value="true"> -->
+  <!--         format: wave -->
+  <!--         device: $(arg device) -->
+  <!--         channels: $(arg n_channel) -->
+  <!--         depth: $(arg bitdepth) -->
+  <!--         sample_rate: $(arg mic_sampling_rate) -->
+  <!--       </rosparam> -->
+  <!--     </node> -->
+  <!--   </group> -->
+  <!-- </group> -->
 
   <!-- audio -> spectrum -> mono spectrogram -->
   <include file="$(find audio_to_spectrogram)/launch/audio_to_spectrogram.launch">
     <arg name="launch_audio_capture" value="false" />
     <arg name="bitdepth" value="$(arg bitdepth)" />
     <arg name="mic_sampling_rate" value="$(arg mic_sampling_rate)" />
+    <arg name="n_channel" value="$(arg n_channel)" />
+    <arg name="audio_topic" value="$(arg audio_topic)" />
     <arg name="high_cut_freq" value="$(arg high_cut_freq)" />
     <arg name="low_cut_freq" value="$(arg low_cut_freq)" />
     <arg name="spectrogram_period" value="$(arg spectrogram_period)" />
