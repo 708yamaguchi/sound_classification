@@ -8,6 +8,8 @@
   <arg name="save_when_sound" default="true"/>
   <arg name="threshold" default="0.5"/>
   <arg name="save_data_rate" default="5"/>
+  <arg name="n_channel" default="8" />
+  <arg name="audio_topic" default="/audio" />
 
   <include file="$(find sound_classification)/launch/audio_to_spectrogram.launch" >
     <arg name="use_rosbag" value="$(arg use_rosbag)" />
@@ -15,6 +17,8 @@
     <arg name="use_microphone" value="$(arg use_microphone)" />
     <arg name="gui" value="$(arg gui)" />
     <arg name="threshold" value="$(arg threshold)" />
+    <arg name="n_channel" value="$(arg n_channel)" />
+    <arg name="audio_topic" value="$(arg audio_topic)" />
   </include>
 
   <!-- Collect spectrogram with sound class, only when the robot is in sound. -->

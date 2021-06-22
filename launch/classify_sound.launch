@@ -2,14 +2,18 @@
 
   <arg name="use_rosbag" default="false" />
   <arg name="filename" default="/" />
-  <arg name="use_microphone" default="false" />
+  <arg name="use_microphone" default="true" />
   <arg name="gui" default="true" />
+  <arg name="audio_topic" default="/audio" />
+  <arg name="n_channel" default="8" />
 
   <include file="$(find sound_classification)/launch/audio_to_spectrogram.launch" >
     <arg name="use_rosbag" value="$(arg use_rosbag)" />
     <arg name="filename" value="$(arg filename)" />
     <arg name="use_microphone" value="$(arg use_microphone)" />
     <arg name="gui" value="false" />
+    <arg name="n_channel" value="$(arg n_channel)" />
+    <arg name="audio_topic" value="$(arg audio_topic)" />
   </include>
 
   <!-- Classify sounds -->
@@ -18,6 +22,7 @@
     <rosparam subst_value="true">
       gpu: 0
       model_name: nin
+      target_names: [no_sound, clap, chair_noise]
     </rosparam>
   </node>
 
