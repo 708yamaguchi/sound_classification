@@ -24,8 +24,9 @@ class SoundSaver(object):
         self.target_class = rospy.get_param('~target_class')
         self.save_raw_spectrogram = rospy.get_param('~save_raw_spectrogram')
         rospack = rospkg.RosPack()
+        train_data = rospy.get_param("~train_data")
         self.train_dir = osp.join(rospack.get_path(
-            'sound_classification'), 'train_data')
+            'sound_classification'), train_data)
         if not osp.exists(self.train_dir):
             makedirs(self.train_dir)
         self.image_save_dir = osp.join(

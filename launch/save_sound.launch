@@ -1,24 +1,42 @@
 <launch>
+  <arg name="n_channel" default="8" />
+  <arg name="bitdepth" default="16" />
+  <arg name="mic_sampling_rate" default="16000" />
 
   <arg name="use_rosbag" default="false" />
   <arg name="filename" default="/" />
   <arg name="use_microphone" default="true" />
+
+  <arg name="high_cut_freq" default="6000" />
+  <arg name="low_cut_freq" default="1" />
+  <arg name="spectrogram_period" default="1" />
+  
   <arg name="gui" default="true"/>
   <arg name="target_class" default="" />
   <arg name="save_when_sound" default="true"/>
   <arg name="threshold" default="0.5"/>
   <arg name="save_data_rate" default="5"/>
-  <arg name="n_channel" default="8" />
+  
   <arg name="audio_topic" default="/audio" />
+  <arg name="train_data" default="train_data" />
 
   <include file="$(find sound_classification)/launch/audio_to_spectrogram.launch" >
+    <arg name="n_channel" value="$(arg n_channel)" />
+    <arg name="bitdepth" value="$(arg bitdepth)" />
+    <arg name="mic_sampling_rate" value="$(arg mic_sampling_rate)" />
+    
     <arg name="use_rosbag" value="$(arg use_rosbag)" />
     <arg name="filename" value="$(arg filename)" />
     <arg name="use_microphone" value="$(arg use_microphone)" />
+    
+    <arg name="high_cut_freq" value="$(arg high_cut_freq)" />
+    <arg name="low_cut_freq" value="$(arg low_cut_freq)" />
+    <arg name="spectrogram_period" value="$(arg spectrogram_period)" />
+    
     <arg name="gui" value="$(arg gui)" />
     <arg name="threshold" value="$(arg threshold)" />
-    <arg name="n_channel" value="$(arg n_channel)" />
     <arg name="audio_topic" value="$(arg audio_topic)" />
+    <arg name="train_data" value="$(arg train_data)" />
   </include>
 
   <!-- Collect spectrogram with sound class, only when the robot is in sound. -->
@@ -32,6 +50,7 @@
       target_class: $(arg target_class)
       save_when_sound: $(arg save_when_sound)
       save_raw_spectrogram: true
+      train_data: $(arg train_data)
     </rosparam>
   </node>
 

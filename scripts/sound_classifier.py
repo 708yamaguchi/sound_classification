@@ -37,7 +37,8 @@ class SoundClassifier(ConnectionBasedTransport):
     def __init__(self):
         super(self.__class__, self).__init__()
         self.gpu = rospy.get_param('~gpu', -1)
-        self.dataset = PreprocessedDataset()
+        self.train_data = rospy.get_param("~train_data", "train_data")
+        self.dataset = PreprocessedDataset(train_data=self.train_data)
         self.target_names_ordered = self.dataset.target_classes
         self.target_names = rospy.get_param('~target_names', self.target_names_ordered)
         for i, name in enumerate(self.target_names):

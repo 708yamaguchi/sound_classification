@@ -22,17 +22,19 @@ from os import makedirs
 import os.path as osp
 from PIL import Image as Image_
 import rospkg
+import rospy
 
 matplotlib.use('Agg')  # necessary not to raise Tcl_AsyncDelete Error
 
-
 class PreprocessedDataset(chainer.dataset.DatasetMixin):
 
-    def __init__(self, path=None, random=True):
+    def __init__(self, path=None, random=True, train_data="train_data"):
         rospack = rospkg.RosPack()
         # Root directory path of train data
+        #self.train_data = rospy.get_param("~train_data")
+        #self.train_data = "test1"
         self.root = osp.join(rospack.get_path(
-            'sound_classification'), 'train_data')
+            'sound_classification'), train_data)
         if path is not None:
             self.base = chainer.datasets.LabeledImageDataset(
                 path, osp.join(self.root, 'dataset'))
@@ -46,7 +48,7 @@ class PreprocessedDataset(chainer.dataset.DatasetMixin):
                 self.target_classes.append(row)
         # Load mean image of dataset
         mean_img_path = osp.join(rospack.get_path('sound_classification'),
-                                 'train_data', 'dataset', 'mean_of_dataset.png')
+                                 train_data, 'dataset', 'mean_of_dataset.png')
         mean = np.array(Image_.open(mean_img_path), np.float32).transpose(
             (2, 0, 1))  # (height, width, channel) -> (channel ,height, width), rgb
         self.mean = mean.astype(chainer.get_dtype())
@@ -114,6 +116,7 @@ def main():
 
     parser = argparse.ArgumentParser(
         description='Learning convnet from ILSVRC2012 dataset')
+    parser.add_argument("-t", "--train_data", type=str, default="train_data")
     parser.add_argument('--epoch', '-e', type=int, default=100,
                         help='Number of epochs to train')
     parser.add_argument('--gpu', '-g', type=int, default=0,
@@ -121,18 +124,18 @@ def main():
     parser.add_argument('-m', '--model', type=str,
                         choices=['nin', 'vgg16'], default='nin',
                         help='Neural network model to use dataset')
-
     args = parser.parse_args()
 
+    #train_data = "train_data"
     # Configs for train with chainer
     device = chainer.cuda.get_device_from_id(args.gpu)  # for python2
     batchsize = 32
     # Path to training image-label list file
     train_labels = osp.join(rospack.get_path('sound_classification'),
-                            'train_data', 'dataset', 'train_images.txt')
+                            args.train_data, 'dataset', 'train_images.txt')
     # Path to validation image-label list file
     val_labels = osp.join(rospack.get_path('sound_classification'),
-                          'train_data', 'dataset', 'test_images.txt')
+                          args.train_data, 'dataset', 'test_images.txt')
 
     # Initialize the model to train
     print('Device: {}'.format(device))
@@ -143,8 +146,8 @@ def main():
     print('')
 
     # Load the dataset files
-    train = PreprocessedDataset(train_labels)
-    val = PreprocessedDataset(val_labels, False)
+    train = PreprocessedDataset(train_labels, train_data=args.train_data)
+    val = PreprocessedDataset(val_labels, False, train_data=args.train_data)
 
     model = load_model(args.model, train.n_class)
     if hasattr(model, 'to_device'):
@@ -168,7 +171,7 @@ def main():
     # Set up a trainer
     # Output directory of train result
     out = osp.join(rospack.get_path('sound_classification'),
-                   'train_data', 'result', args.model)
+                   args.train_data, 'result', args.model)
     if not osp.exists(out):
         makedirs(out)
     updater = training.updaters.StandardUpdater(

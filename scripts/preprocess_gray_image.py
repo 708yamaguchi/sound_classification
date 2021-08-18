@@ -22,8 +22,9 @@ class PreprocessGrayImage(LazyTransport):
         super(self.__class__, self).__init__()
         # Noise subtraction
         rospack = rospkg.RosPack()
+        train_data = rospy.get_param("~train_data")
         self.train_dir = osp.join(rospack.get_path(
-            'sound_classification'), 'train_data')
+            'sound_classification'), train_data)
         self.noise_data_path = osp.join(self.train_dir, 'noise.npy')
         if osp.exists(self.noise_data_path):
             noise_data = np.load(self.noise_data_path)

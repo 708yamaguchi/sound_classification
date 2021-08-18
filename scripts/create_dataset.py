@@ -69,6 +69,7 @@ def split():
     parser = argparse.ArgumentParser()
     parser.add_argument('-r', '--rate', default='0.8', type=float,
                         help='train:test dataset rate (default 0.8:0.2)')
+    parser.add_argument("-t", "--train_data", default="train_data", type=str)
     parser.add_argument('-p', '--path', default=osp.join(rospack.get_path(
         'sound_classification'), 'train_data'), help='path to train data')
     parser.add_argument('-a', '--augment', default='5', type=int,
@@ -87,7 +88,8 @@ def split():
     else:
         print('Model type {} is invalid.'.format(args.model))
         exit()
-    root_dir = osp.expanduser(args.path)
+    root_dir = osp.expanduser(osp.join(rospack.get_path(
+        'sound_classification'), args.train_data))
     origin_dir = osp.join(root_dir, 'original_spectrogram')
     dataset_dir = osp.join(root_dir, 'dataset')
     image_list_train = []

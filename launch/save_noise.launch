@@ -1,20 +1,38 @@
 <launch>
+  <arg name="n_channel" default="8" />
+  <arg name="bitdepth" default="16" />
+  <arg name="mic_sampling_rate" default="16000" />
 
   <arg name="use_rosbag" default="false" />
   <arg name="filename" default="/" />
   <arg name="use_microphone" default="true" />
+
+  <arg name="high_cut_freq" default="6000" />
+  <arg name="low_cut_freq" default="1" />
+  <arg name="spectrogram_period" default="1" />
+
   <arg name="gui" default="true" />
   <arg name="save_data_rate" default="10" />
-  <arg name="audio_topic" default="/audio" />
-  <arg name="n_channel" default="8" />
+  
+  <arg name="audio_topic" default="/audio" />  
+  <arg name="train_data" default="train_data" />
 
   <include file="$(find sound_classification)/launch/audio_to_spectrogram.launch" >
+    <arg name="n_channel" value="$(arg n_channel)" />
+    <arg name="bitdepth" value="$(arg bitdepth)" />
+    <arg name="mic_sampling_rate" value="$(arg mic_sampling_rate)" />
+    
     <arg name="use_rosbag" value="$(arg use_rosbag)" />
     <arg name="filename" value="$(arg filename)" />
     <arg name="use_microphone" value="$(arg use_microphone)" />
+
+    <arg name="high_cut_freq" value="$(arg high_cut_freq)" />
+    <arg name="low_cut_freq" value="$(arg low_cut_freq)" />
+    <arg name="spectrogram_period" value="$(arg spectrogram_period)" />
+    
     <arg name="gui" value="$(arg gui)" />
-    <arg name="n_channel" value="$(arg n_channel)" />
     <arg name="audio_topic" value="$(arg audio_topic)" />
+    <arg name="train_data" value="$(arg train_data)" />
   </include>
 
   <!-- Collect noise spectrogram -->
@@ -22,6 +40,7 @@
     <remap from="~raw_spectrogram" to="/spectrum_to_spectrogram/spectrogram" />
     <rosparam subst_value="true">
       save_data_rate: $(arg save_data_rate) <!-- related to spectrogram_period -->
+      train_data: $(arg train_data)
     </rosparam>
   </node>
 

@@ -1,4 +1,7 @@
 <launch>
+  <arg name="n_channel" default="8" />
+  <arg name="bitdepth" default="16" />
+  <arg name="mic_sampling_rate" default="16000" />
 
   <arg name="use_rosbag" default="false" />
   <arg name="filename" default="/" />
@@ -7,15 +10,22 @@
   <arg name="threshold" default="0.5"/>
   <arg name="hsr" default="false" />
   <arg name="audio_topic" default="/audio" />
+  <arg name="train_data" default="train_data" />
 
   <include file="$(find sound_classification)/launch/audio_to_spectrogram.launch" >
+    <arg name="n_channel" value="$(arg n_channel)" />
+    <arg name="bitdepth" value="$(arg bitdepth)" />
+    <arg name="mic_sampling_rate" value="$(arg mic_sampling_rate)" />
+    
     <arg name="use_rosbag" value="$(arg use_rosbag)" />
     <arg name="filename" value="$(arg filename)" />
     <arg name="use_microphone" value="$(arg use_microphone)" />
+    
     <arg name="gui" value="$(arg gui)" />
     <arg name="threshold" value="$(arg threshold)" />
     <arg name="hsr" value="$(arg hsr)" />
     <arg name="audio_topic" value="$(arg audio_topic)" />
+    <arg name="train_data" value="$(arg train_data)" />
   </include>
 
   <!-- Detect sound based on pixel value sum (nearly equals to volume) -->
