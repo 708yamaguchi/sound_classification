@@ -23,6 +23,7 @@ import os.path as osp
 from process_gray_image import img_jet
 import rospy
 from sensor_msgs.msg import Image
+from jsk_recognition_msgs.msg import Accuracy
 
 from train import PreprocessedDataset
 
@@ -64,6 +65,8 @@ class SoundClassifier(ConnectionBasedTransport):
             self.model.to_gpu(self.gpu)
         self.pub = self.advertise('~output', ClassificationResult,
                                   queue_size=1)
+        self.pub_criteria=self.advertise("~output/criteria", Accuracy,
+                                         queue_size=1)
         self.pub_input = self.advertise(
             '~debug/net_input', Image, queue_size=1)
 
@@ -117,10 +120,18 @@ class SoundClassifier(ConnectionBasedTransport):
                 rospy.logerr('Wrong target_names is given by rosparam.')
                 exit()
         proba = cuda.to_cpu(self.model.pred.data)[0]
+        #rospy.loginfo(proba)
         proba_swapped = [proba[swap_labels[i]] for i, p in enumerate(proba)]
+        #rospy.loginfo(proba_swapped)
+        criteria = 0
+        for i in range(len(proba_swapped)):
+            criteria += (i * 1.0 / (len(proba_swapped)-1)) * proba_swapped[i]
+        if criteria > 0.6:
+            rospy.loginfo(criteria)
         label_swapped = np.argmax(proba_swapped)
         label_name = self.target_names[label_swapped]
         label_proba = proba_swapped[label_swapped]
+        #rospy.loginfo(label_proba)
         cls_msg = ClassificationResult(
             header=imgmsg.header,
             labels=[label_swapped],
@@ -130,7 +141,12 @@ class SoundClassifier(ConnectionBasedTransport):
             classifier=self.model_name,
             target_names=self.target_names,
         )
+        criteria = Accuracy(
+            header=imgmsg.header,
+            accuracy=criteria,
+            )
         self.pub.publish(cls_msg)
+        self.pub_criteria.publish(criteria)
 
 
 if __name__ == '__main__':

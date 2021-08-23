@@ -39,7 +39,7 @@
     <rosparam subst_value="true">
       gpu: 0
       model_name: nin
-      target_names: [no_sound, strong, weak]
+      target_names: [no_sound, weak, strong]
       train_data: kimura_data
     </rosparam>
   </node>
@@ -50,6 +50,7 @@
           pkg="sound_classification" type="draw_classification_result.py" >
       <remap from="~input" to="/sound_classifier/output" />
       <remap from="~input/image" to="/sound_classifier/debug/net_input" />
+      <remap from="~input/criteria" to="/sound_classifier/output/criteria" />
     </node>
     <node pkg="image_view" type="image_view" name="classification_result_view"  >
       <remap from="image" to="/sound_classification_result/output" />

@@ -11,7 +11,7 @@ from __future__ import print_function
 import cv2
 import cv_bridge
 from distutils.version import LooseVersion
-from jsk_recognition_msgs.msg import ClassificationResult
+from jsk_recognition_msgs.msg import ClassificationResult, Accuracy
 from jsk_topic_tools import ConnectionBasedTransport
 import message_filters
 import numpy as np
@@ -50,34 +50,42 @@ class DrawClassificationResult(ConnectionBasedTransport):
         super(self.__class__, self).__init__()
         self.pub = self.advertise('~output', Image, queue_size=1)
         self.cmap = labelcolormap(255)
+        self.criteria_on = True
 
     def subscribe(self):
         self.sub = message_filters.Subscriber('~input', ClassificationResult)
         self.sub_img = message_filters.Subscriber('~input/image', Image)
+
+        self.sub_criteria = message_filters.Subscriber("~input/criteria", Accuracy)
         sync = message_filters.TimeSynchronizer(
-            [self.sub, self.sub_img], queue_size=10)
+            [self.sub, self.sub_img, self.sub_criteria], queue_size=10)
         sync.registerCallback(self._draw)
 
     def unsubscribe(self):
         self.sub.unregister()
         self.sub_img.unregister()
+        self.sub_criteria.unregister()
 
-    def _draw(self, cls_msg, imgmsg):
+    def _draw(self, cls_msg, imgmsg, criteria_msg):
         bridge = cv_bridge.CvBridge()
         rgb = bridge.imgmsg_to_cv2(imgmsg, desired_encoding='rgb8')
 
         n_results = len(cls_msg.labels)
+        criteria = criteria_msg.accuracy
         for i in xrange(n_results):
             label = cls_msg.labels[i]
             color = self.cmap[label % len(self.cmap)] * 255
             legend_size = int(rgb.shape[0] * 0.1)
             rgb[:legend_size, :] = (np.array(color) * 255).astype(np.uint8)
+            if self.criteria_on:
+                rgb[:legend_size*2, :] = (np.array(color) * 255).astype(np.uint8)
 
             label_name = cls_msg.label_names[i]
             if len(label_name) > 16:
                 label_name = label_name[:10] + '..' + label_name[-4:]
             label_proba = cls_msg.label_proba[i]
             title = '{0}: {1:.2%}'.format(label_name, label_proba)
+            sub_title = "{0}".format(criteria)
             (text_w, text_h), baseline = cv2.getTextSize(
                 title, cv2.FONT_HERSHEY_PLAIN, 1, 1)
             scale_h = legend_size / (text_h + baseline)
@@ -93,6 +101,9 @@ class DrawClassificationResult(ConnectionBasedTransport):
                         cv2.FONT_HERSHEY_PLAIN + cv2.FONT_ITALIC,
                         scale, (255, 255, 255), 1,
                         line_type)
+            cv2.putText(rgb, sub_title, (0, text_h + baseline),
+                        cv2.FONT_HERSHEY_PLAIN + cv2.FONT_ITALIC,
+                        scale, (255,255,255), 1, line_type)
 
         out_msg = bridge.cv2_to_imgmsg(rgb, encoding='rgb8')
         out_msg.header = imgmsg.header
