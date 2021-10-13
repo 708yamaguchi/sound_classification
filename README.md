@@ -19,8 +19,6 @@ ROS package to classify sound stream.
     mkdir ~/sound_classification_ws/src -p
     cd ~/sound_classification_ws/src
     git clone https://github.com/708yamaguchi/sound_classification.git
-    # Note: We should stop using `audio_to_spectrogram` from source after released.
-    git clone https://github.com/708yamaguchi/jsk_recognition.git -b multi-channel
     rosdep install --from-paths . --ignore-src -y -r
     cd ..
     catkin build sound_classification
