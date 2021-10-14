@@ -14,6 +14,7 @@ from chainer.serializers import npz
 from chainer.training import extensions
 
 from nin.nin import NIN
+from lstm.lstm import LSTM, LSTM_2
 from vgg16.vgg16_batch_normalization import VGG16BatchNormalization
 
 import matplotlib
@@ -36,8 +37,10 @@ class PreprocessedDataset(chainer.dataset.DatasetMixin):
         self.root = osp.join(rospack.get_path(
             'sound_classification'), train_data)
         if path is not None:
-            self.base = chainer.datasets.LabeledImageDataset(
-                path, osp.join(self.root, 'dataset'))
+            #self.base = chainer.datasets.LabeledImageDataset(
+            #    path, osp.join(self.root, 'dataset'))
+            self.base = chainer.datasets.FloatImageDataset(
+                path, osp.join(self.root, "dataset"))
         self.random = random
         # how many classes to be classified
         self.n_class = 0
@@ -59,6 +62,7 @@ class PreprocessedDataset(chainer.dataset.DatasetMixin):
     def get_example(self, i):
         image, label = self.base[i]  # (channel ,height, width), rgb
         image = self.process_image(image)
+        #print(image.shape)
         return image, label
 
     def process_image(self, image):
@@ -70,10 +74,16 @@ class PreprocessedDataset(chainer.dataset.DatasetMixin):
 def load_model(model_name, n_class):
     archs = {
         'nin': NIN,
-        'vgg16': VGG16BatchNormalization
+        'vgg16': VGG16BatchNormalization,
+        'lstm': LSTM,
+        'lstm2': LSTM_2
     }
     model = archs[model_name](n_class=n_class)
     if model_name == 'nin':
+        pass
+    elif model_name == 'lstm':
+        pass
+    elif model_name == 'lstm2':
         pass
     elif model_name == 'vgg16':
         rospack = rospkg.RosPack()
@@ -122,7 +132,7 @@ def main():
     parser.add_argument('--gpu', '-g', type=int, default=0,
                         help='GPU ID (negative value indicates CPU)')
     parser.add_argument('-m', '--model', type=str,
-                        choices=['nin', 'vgg16'], default='nin',
+                        choices=['nin', 'vgg16', 'lstm', 'lstm2'], default='nin',
                         help='Neural network model to use dataset')
     args = parser.parse_args()
 

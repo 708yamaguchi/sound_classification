@@ -12,6 +12,10 @@
   <arg name="audio_topic" default="/audio" />
   <arg name="train_data" default="train_data" />
 
+  <arg name="high_cut_freq" default="6000" />
+  <arg name="low_cut_freq" default="1" />
+  <arg name="spectrogram_period" default="1" />
+
   <include file="$(find sound_classification)/launch/audio_to_spectrogram.launch" >
     <arg name="n_channel" value="$(arg n_channel)" />
     <arg name="bitdepth" value="$(arg bitdepth)" />
@@ -26,6 +30,10 @@
     <arg name="hsr" value="$(arg hsr)" />
     <arg name="audio_topic" value="$(arg audio_topic)" />
     <arg name="train_data" value="$(arg train_data)" />
+
+    <arg name="high_cut_freq" value="$(arg high_cut_freq)" />
+    <arg name="low_cut_freq" value="$(arg low_cut_freq)" />
+    <arg name="spectrogram_period" value="$(arg spectrogram_period)" />
   </include>
 
   <!-- Detect sound based on pixel value sum (nearly equals to volume) -->

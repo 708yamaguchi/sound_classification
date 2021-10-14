@@ -10,8 +10,13 @@
   <arg name="high_cut_freq" default="6000" />
   <arg name="low_cut_freq" default="1" />
   <arg name="spectrogram_period" default="1" />
-
-  <arg name="gui" default="true" />
+  
+  <arg name="gui" default="true"/>
+  <arg name="target_class" default="" />
+  <arg name="save_when_sound" default="true"/>
+  <arg name="threshold" default="0.5"/>
+  <arg name="save_data_rate" default="5"/>
+  
   <arg name="audio_topic" default="/audio" />
   <arg name="train_data" default="train_data" />
 
@@ -23,39 +28,30 @@
     <arg name="use_rosbag" value="$(arg use_rosbag)" />
     <arg name="filename" value="$(arg filename)" />
     <arg name="use_microphone" value="$(arg use_microphone)" />
-
+    
     <arg name="high_cut_freq" value="$(arg high_cut_freq)" />
     <arg name="low_cut_freq" value="$(arg low_cut_freq)" />
     <arg name="spectrogram_period" value="$(arg spectrogram_period)" />
     
-    <arg name="gui" value="false" />
+    <arg name="gui" value="$(arg gui)" />
+    <arg name="threshold" value="$(arg threshold)" />
     <arg name="audio_topic" value="$(arg audio_topic)" />
     <arg name="train_data" value="$(arg train_data)" />
   </include>
 
-  <!-- Classify sounds -->
-  <node pkg="sound_classification" type="sound_classifier.py" name="sound_classifier" output="screen" >
-    <remap from="~input" to="/preprocess_gray_image/output_normalized" />
-    <rosparam subst_value="true">
-      gpu: 0
-      model_name: lstm
-      <!-- target_names: [no_sound, bottle, door, dish, kettle, key, fridge] -->
-      target_names: [no_sound, bottom, middle, high]
-      train_data: $(arg train_data)
-    </rosparam>
+  <node pkg="sound_classification" type="max_freq.py" name="max_freq" output="screen">
+    <remap from="~in_sound" to="/sound_detector_volume/in_sound" />
+    <remap from="~freq" to="/audio_to_spectrum/spectrum_filtered" />
   </node>
 
-  <!-- Visualize sound classification -->
-  <group if="$(arg gui)">
-    <node name="sound_classification_result"
-          pkg="sound_classification" type="draw_classification_result.py" >
-      <remap from="~input" to="/sound_classifier/output" />
-      <remap from="~input/image" to="/sound_classifier/debug/net_input" />
-      <remap from="~input/criteria" to="/sound_classifier/output/criteria" />
-    </node>
-    <node pkg="image_view" type="image_view" name="classification_result_view"  >
-      <remap from="image" to="/sound_classification_result/output" />
-    </node>
-  </group>
+  <!-- Detect sound based on pixel value sum (nearly equals to volume) -->
+  <node pkg="sound_classification" type="sound_detector_volume.py"
+        name="sound_detector_volume" respawn="true" output="screen">
+    <remap from="~input" to="/preprocess_gray_image/output" />
+    <rosparam subst_value="true">
+      power_per_pixel_threshold: $(arg threshold)
+      lazy: false
+    </rosparam>
+  </node>
 
 </launch>

@@ -17,7 +17,7 @@ import skimage.transform
 import cv_bridge
 from jsk_recognition_msgs.msg import ClassificationResult
 from nin.nin import NIN
-from lstm.lstm import LSTM
+from lstm.lstm import LSTM, LSTM_2
 from vgg16.vgg16_batch_normalization import VGG16BatchNormalization
 from jsk_topic_tools import ConnectionBasedTransport  # TODO use LazyTransport
 import os.path as osp
@@ -53,6 +53,9 @@ class SoundClassifier(ConnectionBasedTransport):
         elif self.model_name == 'lstm':
             self.insize = 227
             self.model = LSTM(n_class=len(self.target_names))
+        elif self.model_name == "lstm2":
+            self.insize = 227
+            self.model = LSTM_2(n_class=1)
         elif self.model_name == 'vgg16':
             self.insize = 224
             self.model = VGG16BatchNormalization(
@@ -124,18 +127,21 @@ class SoundClassifier(ConnectionBasedTransport):
                 rospy.logerr('Wrong target_names is given by rosparam.')
                 exit()
         proba = cuda.to_cpu(self.model.pred.data)[0]
+        #print(self.model.pred.data)
+        print(proba)
         #rospy.loginfo(proba)
         proba_swapped = [proba[swap_labels[i]] for i, p in enumerate(proba)]
         #rospy.loginfo(proba_swapped)
-        criteria = 0
-        for i in range(len(proba_swapped)):
-            criteria += (i * 1.0 / (len(proba_swapped)-1)) * proba_swapped[i]
-        if criteria > 0.6:
-            rospy.loginfo(criteria)
+        # criteria = 0
+        # for i in range(len(proba_swapped)):
+        #     criteria += (i * 1.0 / (len(proba_swapped)-1)) * proba_swapped[i]
+        # if criteria > 0.6:
+        #     rospy.loginfo(criteria)
+        criteria = proba
         label_swapped = np.argmax(proba_swapped)
         label_name = self.target_names[label_swapped]
         label_proba = proba_swapped[label_swapped]
-        #rospy.loginfo(label_proba)
+        # #rospy.loginfo(label_proba)
         cls_msg = ClassificationResult(
             header=imgmsg.header,
             labels=[label_swapped],
