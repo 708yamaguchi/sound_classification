@@ -34,13 +34,13 @@
   </include>
 
   <!-- Classify sounds -->
-  <node pkg="sound_classification" type="sound_classifier.py" name="sound_classifier" output="screen" >
+  <node pkg="sound_classification" type="sound_classifier2.py" name="sound_classifier" output="screen" >
     <remap from="~input" to="/preprocess_gray_image/output_normalized" />
     <rosparam subst_value="true">
       gpu: 0
-      model_name: lstm
+      model_name: lstm2
       <!-- target_names: [no_sound, bottle, door, dish, kettle, key, fridge] -->
-      target_names: [no_sound, bottom, middle, high]
+      target_names: [test]
       train_data: $(arg train_data)
     </rosparam>
   </node>

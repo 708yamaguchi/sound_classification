@@ -21,8 +21,9 @@ class NoiseSaver(object):
     def __init__(self):
         # Config for loading noise data
         rospack = rospkg.RosPack()
+        train_data = rospy.get_param("~train_data")
         self.train_dir = osp.join(rospack.get_path(
-            'sound_classification'), 'train_data')
+            'sound_classification'), train_data)
         if not osp.exists(self.train_dir):
             makedirs(self.train_dir)
         self.noise_data_path = osp.join(self.train_dir, 'noise.npy')

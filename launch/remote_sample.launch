@@ -1,0 +1,34 @@
+<launch>
+  <!-- <machine timeout="4" name="robot1" address="133.11.216.63" user="demo" password="demo" /> -->
+  
+  <arg name="device" default="plughw:1,0" />
+  <arg name="device_name" default="tamago" />
+  <arg name="mode" default="false" />
+
+  <!-- publish audio data as wav format -->
+  <group if="$(arg mode)" >
+    <group ns="$(arg device_name)">
+      <node machine="robot1" name="audio_capture" pkg="audio_capture" type="audio_capture" output="screen">
+        <!-- <param name="device" value="" /> -->
+        <param name="format" value="wave" />
+        <param name="channels" value="8" />
+        <param name="depth" value="16" />
+        <param name="sample_rate" value="16000" />
+        <param name="device" value="$(arg device)" />
+        <!-- <param name="dst" value="/tmp/output.wav" /> -->
+      </node>
+    </group>
+  </group>
+
+  <group unless="$(arg mode)" >
+    <node name="audio_capture" pkg="audio_capture" type="audio_capture" output="screen">
+      <!-- <param name="device" value="" /> -->
+      <param name="format" value="wave" />
+      <param name="channels" value="8" />
+      <param name="depth" value="16" />
+      <param name="sample_rate" value="16000" />
+      <param name="device" value="$(arg device)" />
+      <!-- <param name="dst" value="/tmp/output.wav" /> -->
+    </node>
+  </group>
+</launch>

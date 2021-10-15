@@ -70,18 +70,20 @@ def split():
     parser.add_argument('-r', '--rate', default='0.8', type=float,
                         help='train:test dataset rate (default 0.8:0.2)')
     parser.add_argument("-t", "--train_data", default="train_data", type=str)
-    parser.add_argument('-p', '--path', default=osp.join(rospack.get_path(
-        'sound_classification'), 'train_data'), help='path to train data')
+    # parser.add_argument('-p', '--path', default=osp.join(rospack.get_path(
+    #     'sound_classification'), 'train_data'), help='path to train data')
     parser.add_argument('-a', '--augment', default='5', type=int,
                         help='create {augment} images per 1 image')
     parser.add_argument('-m', '--model', type=str,
-                        choices=['nin', 'vgg16'], default='nin',
+                        choices=['nin', 'vgg16', 'lstm'], default='lstm',
                         help='Neural network model to use dataset')
     parser.add_argument('-n', '--number', default='100', type=int,
                         help='maximum number of images per class used to create dataset')
     args = parser.parse_args()
     rate = args.rate
     if args.model == 'nin':
+        image_size = (227, 227)
+    if args.model == "lstm":
         image_size = (227, 227)
     elif args.model == 'vgg16':
         image_size = (224, 224)
@@ -112,9 +114,23 @@ def split():
         # resize and augment data (multiple args.augment times)
         image_num_per_class = min(args.number, file_num)
         selected_images = random.sample(range(file_num), image_num_per_class)
+        min_param = 1000
+        max_param = -1000
         for i, file_name in enumerate(np.array(file_names)[selected_images]):
             if file_name.endswith('.png') is not True:
                 continue
+            param_name = file_name.rstrip(".png")
+            param_name = param_name + ".txt"
+
+            param = np.loadtxt(osp.join(origin_dir, class_name, "param", param_name))
+            min_param = min(param, min_param)
+            max_param = max(param, max_param)
+
+        for i, file_name in enumerate(np.array(file_names)[selected_images]):
+            if file_name.endswith('.png') is not True:
+                continue
+            param_name = file_name.rstrip(".png")
+            param_name = param_name + ".txt"
             saved_file_name = class_name + '_' + file_name
             img = Image_.open(osp.join(origin_dir, class_name, file_name))
             img = img_jet(np.asarray(img))[:, :, [2, 1, 0]]  # bgr -> rgb
@@ -122,6 +138,8 @@ def split():
             img_resize = img.resize((image_size[0], image_size[1]))
             mean_of_dataset += img_resize
             size_of_dataset += 1
+            param = np.loadtxt(osp.join(origin_dir, class_name, "param", param_name))
+            param = (param - min_param) / (max_param - min_param)
             if i < image_num_per_class * rate:  # save data for train
                 saved_file_name = 'train_' + saved_file_name
                 for j in range(args.augment):
@@ -129,12 +147,12 @@ def split():
                     saved_file_name_augmented = _[0] + '_{0:03d}'.format(j) + _[1]
                     img_aug = Image_.fromarray(seq.augment_image(np.array(img_resize)))
                     img_aug.save(osp.join(dataset_dir, saved_file_name_augmented))
-                    image_list_train.append(saved_file_name_augmented + ' ' + str(class_id) + '\n')
+                    image_list_train.append(saved_file_name_augmented + ' ' + str(param) + '\n')
                     print('saved {}'.format(saved_file_name_augmented))
             else:  # save data for test
                 saved_file_name = 'test_' + saved_file_name
                 img_resize.save(osp.join(dataset_dir, saved_file_name))
-                image_list_test.append(saved_file_name + ' ' + str(class_id) + '\n')
+                image_list_test.append(saved_file_name + ' ' + str(param) + '\n')
                 print('saved {}'.format(saved_file_name))
 
         # create images.txt

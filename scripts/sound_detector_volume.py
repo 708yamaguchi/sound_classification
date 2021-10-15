@@ -33,9 +33,11 @@ class SoundDetectorVolume(LazyTransport):
         pub_msg = InSound()
         pub_msg.header = msg.header
         power_per_pixel = img.sum() / img.size
+        #rospy.loginfo(power_per_pixel)
         rospy.logdebug('power_per_pixel: {}, threshold: {}'.format(
             power_per_pixel, self.threshold))
         if power_per_pixel > self.threshold:
+            #rospy.loginfo("sound")
             rospy.logdebug('### In sound ###')
             pub_msg.in_sound = True
         else:
